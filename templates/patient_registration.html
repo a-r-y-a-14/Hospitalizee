@@ -214,7 +214,7 @@
                     </div>
                     <div class="field">
                         <label>Phone Number</label>
-                        <input type="text" name="phone" placeholder="Without Country Code" required>
+                        <input type="text" maxlength="10" name="phone" placeholder="Without Country Code" required>
                     </div>
                 </div>
                 
@@ -224,8 +224,12 @@
                 <div class="row">
                     <div class="field">
                         <label>Address</label>
-                        <input type="integer" name="pincode" placeholder="Just Pincode or Use Current Location" required>
+                        <input type="text" name="address" placeholder="Full Address or Use Current Location" required>
                         <button type="button" onclick="getLocation()">Use My Location</button>
+                    </div>
+                    <div class="field">
+                        <label>Pincode</label>
+                        <input style="width: 86%;" type="text" name="pincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="Pincode" title="Enter valid pincode" required>
                     </div>
                 </div>
 

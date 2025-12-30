@@ -205,7 +205,7 @@
                 <input type="text" name="name" required>
                 
                 <label>Goverment ID</label>
-                <input type="integer" name="id" required>
+                <input type="integer" name="gid" required>
 
                 <div class ="row">
                     <div class="field">
@@ -214,19 +214,19 @@
                     </div>
                     <div class="field">
                         <label>Telephone Number</label>
-                        <input type="text" name="phone" placeholder="Without Country Code" required>
+                        <input type="text" name="phone" maxlength="10" placeholder="Without Country Code" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="field" style="width: 300px;">
                         <label>Address</label>
-                        <input type="integer" name="address" placeholder="Full Address or Use Current Location" required>
+                        <input type="text" name="address" placeholder="Full Address or Use Current Location" required>
                         <button type="button" onclick="getLocation()">Use My Location</button>
                     </div>
                     <div class="field" style="width: 97px;">
                         <label>Pincode</label>
-                        <input type="integer" name="pincode" placeholder="Pincode" required>
+                        <input type="text" name="pincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="Pincode" title="Enter valid pincode" required>
                     </div>
                 </div>
 

@@ -1,1 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
 
+        .top-border {
+            border-top: 0px solid #077cf0;   /* upper border */
+            background-color: #a5edff;
+            padding: 5px 30px;
+
+            /* layout */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .top-border h1 {
+            margin: 5px 0;
+            font-size: 26px;
+            font-weight: bold;
+            color: #000000;
+        }
+        .top-border h4 {
+            margin: 0;
+            font-size: 14px;
+            font-style: italic;
+            color: #000000;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            text-decoration: none;
+            border: none;
+            background-color: #2c3e50;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-all {
+            background-color: black;
+        }
+
+        .btn-emergency {
+            background-color: #ff1500;
+        }
+        
+        .btn-all:hover {
+            background-color: #2c3e50
+        }
+
+        .btn-emergency:hover {
+            background-color: #7f1205
+        }
+
+        .spacer {
+            height: 1200px;   /* just to create scroll */
+        }
+
+        #end-content {
+            padding: 30px;
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-border">
+        <div>
+            <h1>HOSPITALIZEE</h1>
+            <h4>the ultimate solution to hospital management</h4>
+        </div>
+        
+        <div class="btn-group">
+            <a href="patient/logout" class="btn btn-all">Logout</a>
+            <a href="#end-content" class="btn btn-all">About Us</a>
+            <a href="/emergency" class="btn btn-emergency">Emergency</a>
+        </div>
+    </div>
+    <div style="padding: 5px 25px; align-items: center; justify-content: space-between; display: flex;">
+        <h2>Welcome {{ user.name }}, {{ user.id }}</h2>
+        <div class="btn-group"  style="padding-right: 100px;">
+            <a href="/patient/new-appointment" class="btn btn-all" style=" background-color: rgb(45, 179, 4); font-size: 20px;">Book New Appointment</a>
+            <a href="/patient/cancel-appointment" class="btn btn-all" style=" background-color: rgb(191, 43, 17); font-size: 20px;">Cancel Appointment</a>
+        </div>
+    </div>
+    <div style="padding: 0px 25px">
+        <h3>Your Upcoming Appointments</h3>
+        <table border = "2">
+            <tbody>
+            <tr>
+                <th>Date</th>
+                <th>Time/Slot</th>
+                <th>Doctor, Hospital</th>
+                <th>Status</th>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="height: 50px;"></div>
+    <div style="padding: 0px 25px">
+        <h3>Previous Appointments</h3>
+        <table border = "2">
+            <tbody>
+            <tr>
+                <th>Date</th>
+                <th>Time/Slot</th>
+                <th>Doctor, Hospital</th>
+                <th>Status</th>
+                <th>Prescriptions(if any)</th>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

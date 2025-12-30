@@ -23,6 +23,7 @@ class Patient(db.Model):
 
 class Hospital(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    gid = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     name = db.Column(db.String(100), nullable=False)
@@ -149,7 +150,7 @@ def get_doctors(dept_id):
         for d in doctors for h in hospitals if d.hospital_id == h.id
     ])
 
-@app.route('/hospital/login')
+@app.route('/hospital/login', methods=['GET', 'POST'])
 def hospital_login():
     if request.method == "POST":
         email = request.form.get('email')
@@ -195,8 +196,14 @@ def hospital_register():
         email = request.form.get('email')
         password = request.form.get('password')
         name = request.form.get('name')
-        phone = request.form.get('phone')
         pincode = request.form.get('pincode')
+        address = request.form.get('address')
+        gid = request.form.get('gid')
+        tel = request.form.get('phone')
+
+        lat = request.form.get('lat')
+        lon = request.form.get('long')
+
 
         if Hospital.query.filter_by(email=email).first():
             return render_template(
@@ -205,7 +212,7 @@ def hospital_register():
                 redirect_url="/hospital/login"
             )
 
-        new_user = Hospital(email=email, password=password, name=name, phone=phone, pincode=pincode)
+        new_user = Hospital(gid=gid, email=email, password=password, name=name, telephone=tel, pincode=pincode, address=address, lat=lat, lon=lon, emergency_capacity=0)
         db.session.add(new_user)
         db.session.commit()
 
