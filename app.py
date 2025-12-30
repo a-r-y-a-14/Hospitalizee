@@ -150,16 +150,72 @@ def get_doctors(dept_id):
     ])
 
 @app.route('/hospital/login')
-def hospital():
+def hospital_login():
+    if request.method == "POST":
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        user = Hospital.query.filter_by(email=email).first()
+        if not user:
+            return render_template(
+                'alert.html',
+                message="User doesn't exist! Please register.",
+                redirect_url="/hospital/register"
+            )
+        if user.password == password:
+            session['user_id'] = user.id
+            return redirect('/hospital/dashboard')
+        else:
+            return render_template(
+                'alert.html',
+                message="Incorrect password! Please try again.",
+                redirect_url="/hospital/login"
+            )
+
     return render_template('hospital_login.html')
 
 @app.route('/hospital/dashboard')
+def hospital_dashboard():
+    if 'user_id' not in session:
+        return redirect('/hospital/login')
+    user = Hospital.query.get(session['user_id'])
+    return render_template('hospital_dashboard.html', user=user)
 
 @app.route('/hospital/logout')
+def hospital_logout():
+    return render_template(
+        'alert.html',
+        message="You have been logged out successfully.",
+        redirect_url="/hospital/login"
+    )
 
-@app.route('/hospital/register')
+@app.route('/hospital/register', methods=['GET', 'POST'])
+def hospital_register():
+    if request.method == "POST":
+        email = request.form.get('email')
+        password = request.form.get('password')
+        name = request.form.get('name')
+        phone = request.form.get('phone')
+        pincode = request.form.get('pincode')
 
+        if Hospital.query.filter_by(email=email).first():
+            return render_template(
+                "alert.html",
+                message="Hospital already exists! Please login.",
+                redirect_url="/hospital/login"
+            )
 
+        new_user = Hospital(email=email, password=password, name=name, phone=phone, pincode=pincode)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return render_template(
+            "alert.html",
+            message="Registration successful! Please login.",
+            redirect_url="/hospital/login"
+        )
+
+    return render_template('hospital_registration.html')
 
 @app.route('/emergency')
 def emergency():
