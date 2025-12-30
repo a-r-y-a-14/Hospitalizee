@@ -20,7 +20,7 @@
 
         .login-card {
             background: #ffffff;
-            width: 480px;
+            width: auto;
             padding: 36px 36px;
             border-radius: 10px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.15);
@@ -176,6 +176,22 @@
             padding: 30px;
             background-color: #f1f1f1;
         }
+        table {
+            font-family: system-ui;
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 15px;
+            }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+            }
 
 
     </style>
@@ -199,37 +215,39 @@
             <h1 style="color: red; text-align: center;">EMERGENCY</h1>
             <p>We Are Ready to Help—Register Here</p>
 
-            <div style="padding:10px; font-size: 18px;">
-                First name: {{fname}}<br>
-                Last name: {{lname}}<br>
-                Date of birth: {{dob}}<br>
-                Phone number: {{phno}}<br>
-                Email: {{email}}<br>
-                Address: {{address}}<br>
-                Reason for visit: {{reason}}<br>
+            <div style="padding:10px; font-size: 13px;">
+                <b>First name:</b> Krishita<br>
+                <b>Last name:</b> Banerjee<br>
+                <b>Date of birth:</b> 29.01.2007<br>
+                <b>Phone number:</b> 8158867780<br>
+                <b>Email:</b> abc@gmail.com<br>
+                <b>Address:</b> prq block roy lane<br>
+                <b>Reason for visit:</b> accident<br>
                 <button type="button" class="btn-btn-primary" style="margin-top:10px;">Edit Patient</button>
                 
             <div id="content">
-                <h4 class="headings"> Nearest available hospitals</h4>
+                <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" > Nearest available hospitals</h3>
             </div>
             <div id="table">
-                <table class="table" border="1">
-                    <thead>
-                        <tr>
+                <table class="table">
+                    <tr style="font-family: system-ui;">
                         <th scope="col">Hospital Name</th>
                         <th scope="col">Address</th>
-                        <th scope="col">Emergency bed available</th>
+                        <th scope="col">Emergency bed availabe</th>
                         <th scope="col">Book bed</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ }}</td>
-                            <td>{{ }}</td>
-                            <td>{{ }}</td>
-                            <td>{{ }}</td>
-                        </tr>
-                    </tbody>
+                    </tr>
+                    <tr>
+                        <td>{{ }}</td>
+                        <td>{{ }}</td>
+                        <td>{{ }}</td>
+                        <td>{{ }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ }}</td>
+                        <td>{{ }}</td>
+                        <td>{{ }}</td>
+                        <td>{{ }}</td>
+                    </tr>
                 </table>
             </div>    
                 <button type="submit" class="login-btn">Submit</button>
