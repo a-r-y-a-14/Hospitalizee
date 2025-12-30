@@ -92,7 +92,7 @@ def patient_dashboard():
     user = Patient.query.get(session['user_id'])
     return render_template('patient_dashboard.html', user=user)
 
-@app.route('/logout')
+@app.route('/patient/logout')
 def logout():
     return render_template(
         'alert.html',
@@ -152,6 +152,14 @@ def get_doctors(dept_id):
 @app.route('/hospital/login')
 def hospital():
     return render_template('hospital_login.html')
+
+@app.route('/hospital/dashboard')
+
+@app.route('/hospital/logout')
+
+@app.route('/hospital/register')
+
+
 
 @app.route('/emergency')
 def emergency():
