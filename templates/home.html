@@ -2,13 +2,246 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Hospitalizee</title>
+    <title>Hospitalizee | Healthcare Management Software</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
+        /* ---------- GLOBAL ---------- */
+        * {
+            box-sizing: border-box;
         }
 
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #2c3e50;
+            background-color: #ffffff;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        h1, h2, h3 {
+            margin: 0 0 15px;
+        }
+
+        p {
+            margin: 0 0 15px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* ---------- BUTTONS ---------- */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            background-color: #2c3e50;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: #1173bf;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0d5c97;
+        }
+
+        .btn-secondary {
+            background-color: #00a89c;
+            color: #ffffff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #008e84;
+        }
+
+        /* ---------- HEADER ---------- */
+        header {
+            background: linear-gradient(135deg, #e9f5ff, #ffffff);
+            padding: 70px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 42px;
+        }
+
+        header p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 20px auto 30px;
+        }
+
+        /* ---------- TRUST ---------- */
+
+        /* ---------- TRUST STATS ---------- */
+        .trust-stats {
+            background: #f4faff;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .trust-stats h2 {
+            font-size: 28px;
+            margin-bottom: 40px;
+            color: #2c3e50;
+        }
+
+        .trust-stats h2 span {
+            color: #1173bf;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .stat-box {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 30px 20px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-6px);
+        }
+
+        .stat-box h3 {
+            font-size: 36px;
+            color: #1173bf;
+            margin-bottom: 10px;
+        }
+
+        .stat-box p {
+            font-size: 16px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* ---------- FEATURES ---------- */
+        .features {
+            padding: 70px 0;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 40px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 25px;
+            border-radius: 10px;
+            transition: box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .feature-card h3 {
+            color: #1173bf;
+        }
+
+        /* ---------- BENEFITS ---------- */
+        .benefits {
+            background-color: #f4faff;
+            padding: 70px 0;
+        }
+
+        .benefits h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .benefits ul {
+            max-width: 700px;
+            margin: auto;
+            list-style: none;
+            padding: 0;
+        }
+
+        .benefits li {
+            background: #ffffff;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #1173bf;
+            border-radius: 5px;
+        }
+
+        /* ---------- TESTIMONIALS ---------- */
+        .testimonials {
+            padding: 70px 0;
+            text-align: center;
+        }
+
+        .testimonial-box {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .testimonial {
+            background: #f8f9fb;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .testimonial p {
+            font-style: italic;
+        }
+
+        /* ---------- CTA ---------- */
+        .cta {
+            background: linear-gradient(135deg, #1173bf, #00a89c);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 30px;
+        }
+
+        .cta .btn {
+            margin: 10px;
+        }
+
+        /* ---------- FOOTER ---------- */
+        footer {
+            background-color: #2c3e50;
+            color: #ffffff;
+            padding: 30px 0;
+            text-align: center;
+            font-size: 14px;
+        }
         .top-border {
             border-top: 0px solid #077cf0;   /* upper border */
             background-color: #a5edff;
@@ -36,18 +269,6 @@
             display: flex;
             gap: 10px;
         }
-
-        .btn {
-            padding: 8px 16px;
-            text-decoration: none;
-            border: none;
-            background-color: #2c3e50;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
         .btn-all {
             background-color: black;
         }
@@ -59,47 +280,189 @@
         .btn-all:hover {
             background-color: #2c3e50
         }
-
-        .btn-emergency:hover {
-            background-color: #7f1205
+        /* ---------- LOGIN DROPDOWN ---------- */
+        
+        .login-dropdown {
+            position: relative;
+            display: inline-block;
         }
 
-        .spacer {
-            height: 1200px;   /* just to create scroll */
+
+        /* Dropdown menu */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #000000ff;
+            min-width: 160px;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+            overflow: hidden;
+            z-index: 1000;
         }
 
-        #end-content {
-            padding: 30px;
-            background-color: #f1f1f1;
+        /* Dropdown links */
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #2c3e50;
+        }
+
+        /* Show dropdown on hover */
+        .login-dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 32px;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <div class="top-border">
+    <!-- HERO -->
+     <div class="top-border">
         <div>
             <h1>HOSPITALIZEE</h1>
             <h4>the ultimate solution to hospital management</h4>
         </div>
         
         <div class="btn-group">
-            <a href="/patient/login" class="btn btn-all">Patient</a>
-            <a href="/hospital/login" class="btn btn-all">Hospital</a>
+            <!-- LOGIN DROPDOWN -->
+            <div class="login-dropdown">
+                <a href="#" class="btn btn-all">Login</a>
+                <div class="dropdown-menu">
+                    <a href="/login/patient">Patient</a>
+                    <a href="/login/hospital">Hospital</a>
+                </div>
+            </div>
             <a href="#end-content" class="btn btn-all">About Us</a>
             <a href="/emergency" class="btn btn-emergency">Emergency</a>
         </div>
     </div>
+    <header>
+        <div class="container">
+            <h1>One Platform for Smart Healthcare Management</h1>
+            <p>
+                Hospitalizee is a cloud-based healthcare management system designed
+                for hospitals, clinics, laboratories, and pharmacies.
+            </p>
+            <a href="#" class="btn btn-primary">Add your Hospital</a>
+            <a href="#" class="btn btn-secondary">Book an Appointment</a>
+        </div>
+    </header>
 
-    <div style="padding: 20px;">
-        Page content goes here...
-    </div>
+    <!-- TRUST -->
+    <!-- TRUST STATS SECTION -->
+    <section class="trust-stats">
+        <div class="container">
+            <h2>Trusted by Over <span>1500+</span> Customers Worldwide!</h2>
 
-    <div class="spacer"></div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>15M+</h3>
+                    <p>Patient Records</p>
+                </div>
 
-    <div id="end-content">
-        <h2>About Us</h2>
-        <p>Welcome to Hospitalizee, the ultimate solution to hospital management. We are dedicated to providing top-notch services to ensure efficient and effective healthcare management.</p>
-    </div>
+                <div class="stat-box">
+                    <h3>30k+</h3>
+                    <p>Doctors</p>
+                </div>
+
+                <div class="stat-box">
+                    <h3>50+</h3>
+                    <p>Cities</p>
+                </div>
+
+                <div class="stat-box">
+                    <h3>10+</h3>
+                    <p>Countries</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- FEATURES -->
+    <section class="features">
+        <div class="container">
+            <h2>Our Solutions</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Hospital Management</h3>
+                    <p>Complete patient lifecycle from admission to discharge.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Clinic Management</h3>
+                    <p>Appointments, EMR, billing, and patient communication.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Laboratory Management</h3>
+                    <p>Sample tracking, reports, and lab workflow automation.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Patient Management</h3>
+                    <p>Appointment Booking in real time, Emergency Booking in nearest hospital</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section class="benefits">
+        <div class="container">
+            <h2>Why Choose Hospitalizee?</h2>
+            <ul>
+                <li>Cloud-based & secure platform</li>
+                <li>Accessible anytime, anywhere</li>
+                <li>Improves patient experience</li>
+                <li>Automated reports & analytics</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials">
+        <div class="container testimonial-box">
+            <h2>What Our Clients Say</h2>
+            <div class="testimonial">
+                <p>"Hospitalizee streamlined our hospital operations completely."</p>
+                <strong>— Hospital Administrator</strong>
+            </div>
+            <div class="testimonial">
+                <p>"Simple UI and powerful features for clinics."</p>
+                <strong>— Clinic Director</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Transform Your Healthcare Operations?</h2>
+            <a href="#" class="btn btn-primary">Contact Us</a>
+            <a href="#" class="btn btn-secondary">Book a Demo</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Hospitalizee. All Rights Reserved.</p>
+            <p>Email: support@hospitalizee.com | Phone: +91-XXXXXXXXXX</p>
+        </div>
+    </footer>
 
 </body>
 </html>

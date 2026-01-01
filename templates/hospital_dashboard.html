@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Dashboard</title>
+    <title>Hospital Dashboard</title>
     <style>
         body {
             margin: 0;
@@ -73,6 +73,26 @@
             padding: 30px;
             background-color: #f1f1f1;
         }
+        table {
+            font-family: system-ui;
+            border-collapse: collapse;
+            width: 40%;
+            font-size: 15px;
+            }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 3px;
+            }
+
+        th{
+            background-color: #8a8989ff;
+            }
+
+        tr{
+            background-color: #dddddd;
+            }
     </style>
 </head>
 <body>
@@ -88,40 +108,92 @@
             <a href="/emergency" class="btn btn-emergency">Emergency</a>
         </div>
     </div>
-    <div style="padding: 5px 25px; align-items: center; justify-content: space-between; display: flex;">
-        <h2>Welcome {{ user.name }}, {{ user.id }}</h2>
-        <div class="btn-group"  style="padding-right: 100px;">
-            <a href="/patient/new-appointment" class="btn btn-all" style=" background-color: rgb(45, 179, 4); font-size: 20px;">Book New Appointment</a>
-            <a href="/patient/cancel-appointment" class="btn btn-all" style=" background-color: rgb(191, 43, 17); font-size: 20px;">Cancel Appointment</a>
+    <div class="login">
+        <div class="login-card">
+            <div style="padding: 5px 25px; align-items: center; justify-content: space-between; display: flex;">
+                <h2>Welcome Admin, {{ user.id }}</h2>
+                <div class="btn-group"  style="padding-right: 100px;">
+                    <a href="/patient/doc_reg" class="btn btn-all" style=" background-color: rgb(45, 179, 4); font-size: 20px;">Add new Doctor</a>
+                </div>
+            </div>
+
+            <div id="content" style="padding: 0px 25px">
+                <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" >Emergency Details</h3>
+            </div>
+            <div id="table" style="padding: 0px 25px">
+                <table class="table" style="width: 40%;">
+                    <tr style="font-family: system-ui;">
+                        <th scope="col">Available beds</th>
+                        <th scope="col">Occupied beds</th>
+                        <th scope="col">Total beds</th>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>20</span>
+                                <a href=""
+                                class="btn btn-all"
+                                style="background-color: rgba(17, 145, 191, 1);">
+                                    Update
+                                </a>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>30</span>
+                                <a href=""
+                                class="btn btn-all"
+                                style="background-color: rgba(17, 145, 191, 1);">
+                                    Update
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div style="height: 50px;"></div>
+            <div id="table" style="padding: 0px 25px">
+                <table class="table">
+                    <tr style="font-family: system-ui;">
+                        <th scope="col">Assigned Doctor</th>
+                        <th scope="col">Department</th>
+                    </tr>
+                    <tr>
+                        <td>Priya Singh</td>
+                        <td>Orthopaedic</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="content" style="padding: 0px 25px">
+                <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" >Depatrments Present</h3>
+            </div>
+            <div id="table" style="padding: 0px 25px">
+                <table class="table" style="width: 20%;">
+                    <tr style="font-family: system-ui;">
+                        <th scope="col">Name</th>
+                        <th scope="col" style="width: 40%;">Details</th>
+                    </tr>
+                    <tr>
+                        <td>Orthopaedic</td>
+                        <td style="text-align: right;">
+                            <a href="#"
+                            class="btn btn-all" style=" padding-top: 2px; background-color: rgba(17, 145, 191, 1);">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
         </div>
-    </div>
-    <div style="padding: 0px 25px">
-        <h3>Your Upcoming Appointments</h3>
-        <table border = "2">
-            <tbody>
-            <tr>
-                <th>Date</th>
-                <th>Time/Slot</th>
-                <th>Doctor, Hospital</th>
-                <th>Status</th>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div style="height: 50px;"></div>
-    <div style="padding: 0px 25px">
-        <h3>Previous Appointments</h3>
-        <table border = "2">
-            <tbody>
-            <tr>
-                <th>Date</th>
-                <th>Time/Slot</th>
-                <th>Doctor, Hospital</th>
-                <th>Status</th>
-                <th>Prescriptions(if any)</th>
-            </tr>
-            </tbody>
-        </table>
     </div>
 </body>
 </html>
