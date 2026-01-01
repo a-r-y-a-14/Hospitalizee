@@ -229,6 +229,7 @@
             <div id="content">
                 <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" > Nearest available hospitals</h3>
             </div>
+            <form method="POST" action="/emergency/book-emergency">
             <div id="table">
                 <table class="table">
                     <tr style="font-family: system-ui;">
@@ -244,10 +245,7 @@
                             <td>{{ hosp.address }}, {{ hosp.pincode }}</td>
                             <td style="text-align: center;">{{ hosp.cur_emergency_availability }}</td>
                             <td style="text-align: center;">
-                                <form method="POST" action="/emergency/book-emergency">
-                                    <input type="hidden" name="hospital_id" value="{{ hosp.id }}">
-                                    <button type="submit" class="btn">Book Now</button>
-                                </form>
+                                    <input type="radio" name="hospital_id" value="{{ hosp.id }}" required>
                             </td>
                         </tr>
                         {% endfor %}
@@ -259,7 +257,7 @@
                 </table>
             </div>    
                 <button type="submit" class="login-btn">Submit</button>
-
+            </form>
             </div>
 
         </div>

@@ -297,7 +297,7 @@ def book_emergency():
     reason = request.form.get('reason')
     patient_name = f"{fname} {lname}"
 
-    new_booking = EmergencyBooking(patient_name=patient_name, dob=datetime.strptime(dob, "%Y-%m-%d").date(), phone=phone, email=email, address=address, pincode=pincode, hospital_id=hospital_id, booking_time=datetime.now(), reason=reason)
+    new_booking = EmergencyBooking(patient_name=patient_name, dob=dob, phone=phone, email=email, address=address, pincode=pincode, hospital_id=hospital_id, booking_time=datetime.now(), reason=reason)
     db.session.add(new_booking)
     db.session.commit()
 
