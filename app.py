@@ -69,6 +69,19 @@ class Appointment(db.Model):
     appointment_date = db.Column(db.DateTime, nullable=False)
     appointment_slot = db.Column(db.String(50), nullable=False)
 
+class EmergencyBooking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patient_name = db.Column(db.String(100), nullable=False)
+    patient_id = db.Column(db.Integer, nullable=True)
+    dob = db.Column(db.Date, nullable=True)
+    phone = db.Column(db.String(15), nullable=True)
+    email = db.Column(db.String(100), nullable=True)
+    address = db.Column(db.String(200), nullable=True)
+    pincode = db.Column(db.Integer, nullable=True)
+    hospital_id = db.Column(db.Integer, db.ForeignKey('hospital.id'), nullable=False)
+    booking_time = db.Column(db.DateTime, default=datetime.now)
+    reason = db.Column(db.String(300), nullable=False)
+
 with app.app_context():
     db.create_all()
 
@@ -264,7 +277,7 @@ def emergency_hosp():
 
     if lat and lon:
         all_hospitals = Hospital.query.all()
-        sorted_hospitals = sorted(hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
+        sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
         hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0][:3]
     else:
         hospitals = Hospital.query.filter_by(pincode=pincode).limit(3).all()
@@ -272,7 +285,29 @@ def emergency_hosp():
     return render_template('emergency_rec.html', fname=fname, lname=lname, dob=dob, phone=phone, email=email, address=address, pincode=pincode, reason=reason, hospitals=hospitals)
 
 @app.route('/emergency/book-emergency', methods=['POST'])
-def
+def book_emergency():
+    hospital_id = request.form.get('hospital_id')
+    fname = request.form.get('fname')
+    lname = request.form.get('lname')
+    dob = request.form.get('dob')
+    phone = request.form.get('phone')
+    email = request.form.get('email')
+    address = request.form.get('address')
+    pincode = request.form.get('pincode')
+    reason = request.form.get('reason')
+    patient_name = f"{fname} {lname}"
+
+    new_booking = EmergencyBooking(patient_name=patient_name, dob=datetime.strptime(dob, "%Y-%m-%d").date(), phone=phone, email=email, address=address, pincode=pincode, hospital_id=hospital_id, booking_time=datetime.now(), reason=reason)
+    db.session.add(new_booking)
+    db.session.commit()
+
+    hospital = Hospital.query.get(hospital_id)
+
+    return render_template(
+        'alert.html',
+        message=f"Emergency booking successful at {hospital.name}. Please proceed to the hospital.",
+        redirect_url="/"
+    )
 
 
 if __name__ == '__main__':
