@@ -221,25 +221,19 @@
                 <input type="email" name="email" placeholder="example@mail.com" required>
 
                 <div class="row">
-                    <div class="field">
+                    <div class="field" style="width: 300px;">
                         <label>Address</label>
-                        <input type="number" name="pincode" placeholder="Just Pincode or Use Current Location" required>
+                        <input type="text" name="address" placeholder="Full Address or Use Current Location" required>
                         <button type="button" onclick="getLocation()">Use My Location</button>
                     </div>
+                    <div class="field" style="width: 97px;">
+                        <label>Pincode</label>
+                        <input type="text" name="pincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="Pincode" title="Enter valid pincode" required>
+                    </div>
                 </div>
+                
                 <label>Reason for visit</label>
                 <input type="text" name="emergency_reason" placeholder="eg- shortness of breath, blood loss etc" required>
-
-                <div class="row">
-                    <div class="field">
-                        <label>Create Password</label>
-                        <input type="password" name="password" required>
-                    </div>
-                    <div class="field">
-                        <label>Confirm Password</label>
-                        <input type="password" name="conf_password" required>
-                    </div>
-                </div>
 
                 <button type="submit" class="login-btn">Next</button>
 

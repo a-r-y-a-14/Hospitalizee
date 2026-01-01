@@ -216,13 +216,14 @@
             <p>We Are Ready to Help—Register Here</p>
 
             <div style="padding:10px; font-size: 13px;">
-                <b>First name:</b> Krishita<br>
-                <b>Last name:</b> Banerjee<br>
-                <b>Date of birth:</b> 29.01.2007<br>
-                <b>Phone number:</b> 8158867780<br>
-                <b>Email:</b> abc@gmail.com<br>
-                <b>Address:</b> prq block roy lane<br>
-                <b>Reason for visit:</b> accident<br>
+                <b>First name:</b> {{ fname }}<br>
+                <b>Last name:</b> {{ lname }}<br>
+                <b>Date of birth:</b> {{ dob }}<br>
+                <b>Phone number:</b> {{ phone }}<br>
+                <b>Email:</b> {{ email }}<br>
+                <b>Address:</b> {{ address }}<br>
+                <b>Pincode:</b> {{ pincode }}<br>
+                <b>Reason for visit:</b> {{ reason }}<br>
                 <button type="button" class="btn-btn-primary" style="margin-top:10px;">Edit Patient</button>
                 
             <div id="content">
@@ -236,18 +237,25 @@
                         <th scope="col">Emergency bed availabe</th>
                         <th scope="col">Book bed</th>
                     </tr>
-                    <tr>
-                        <td>{{ }}</td>
-                        <td>{{ }}</td>
-                        <td>{{ }}</td>
-                        <td>{{ }}</td>
-                    </tr>
-                    <tr>
-                        <td>{{ }}</td>
-                        <td>{{ }}</td>
-                        <td>{{ }}</td>
-                        <td>{{ }}</td>
-                    </tr>
+                    {% if hospitals %}
+                        {% for hosp in hospitals %}
+                        <tr>
+                            <td>{{ hosp.name }}</td>
+                            <td>{{ hosp.address }}, {{ hosp.pincode }}</td>
+                            <td style="text-align: center;">{{ hosp.cur_emergency_availability }}</td>
+                            <td style="text-align: center;">
+                                <form method="POST" action="/emergency/book-emergency">
+                                    <input type="hidden" name="hospital_id" value="{{ hosp.id }}">
+                                    <button type="submit" class="btn">Book Now</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center;">No hospitals found</td>
+                        </tr>
+                    {% endif %}
                 </table>
             </div>    
                 <button type="submit" class="login-btn">Submit</button>
@@ -257,7 +265,7 @@
         </div>
     </div>
 
-    <div class="spacer"></div>
+    <!-- <div class="spacer"></div> -->
 
     <div id="end-content">
         <h2>About Us</h2>
