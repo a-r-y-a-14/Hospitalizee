@@ -46,7 +46,7 @@ class Hospital(db.Model):
     lat = db.Column(db.Float, nullable=True)
     lon = db.Column(db.Float, nullable=True)
     emergency_capacity = db.Column(db.Integer, nullable=False)
-    cur_emergency_availability = db.Column(db.Integer, nullable=False, default=emergency_capacity)
+    cur_emergency_availability = db.Column(db.Integer, nullable=False)
 
 class Departments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -64,10 +64,13 @@ class Doctor(db.Model):
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False)
+    fname = db.Column(db.String(100), nullable=False)
+    lname = db.Column(db.String(100), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'), nullable=False)
     hospital_id = db.Column(db.Integer, db.ForeignKey('hospital.id'), nullable=False)
     appointment_date = db.Column(db.DateTime, nullable=False)
     appointment_slot = db.Column(db.String(50), nullable=False)
+    status = db.Column(db.String(50), nullable=False)
 
 class EmergencyBooking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -175,11 +178,30 @@ def patient_new_appointment():
 def get_doctors(dept_id):
     doctors = Doctor.query.filter_by(department_id=dept_id).all()
     hospitals = Hospital.query.all()
-
     return jsonify([
-        {"id": d.id, "name": d.name, "hname" : h.name}
+        {"id": f"{d.id},{h.id}", "name": d.name, "hname" : h.name}
         for d in doctors for h in hospitals if d.hospital_id == h.id
     ])
+
+@app.route('/get-slots/<int:doctor_id>')
+def get_slots(doctor_id):
+    doctor = Doctor.query.get_or_404(doctor_id)
+    return jsonify(doctor.slots)
+
+
+@app.route('/patient/confirm-appoiintment', methods=['POST'])
+def confirm_appointment():
+    fname = request.form.get('fname')
+    lname = request.form.get('lname')
+    date = datetime.strptime(request.form.get('date'), "%Y-%m-%d").date()
+    patient_id = request.args.get('patient_id')
+    doct_id = request.form.get('doct_id').split(',')[0]
+    hosp_id = request.form.get('doct_id').split(',')[1]
+    slot = request.form.get('slot')
+
+    new_app = Appointment(fname=fname, lname=lname, appointment_date=date, patient_id=patient_id, doctor_id=doct_id, hospital_id=hosp_id, slot=slot, status="Pending")
+
+
 
 @app.route('/hospital/login', methods=['GET', 'POST'])
 def hospital_login():
@@ -245,7 +267,7 @@ def hospital_register():
                 redirect_url="/hospital/login"
             )
 
-        new_user = Hospital(gid=gid, email=email, password=password, name=name, telephone=tel, pincode=pincode, address=address, lat=lat, lon=lon, emergency_capacity=emergency_capacity)
+        new_user = Hospital(gid=gid, email=email, password=password, name=name, telephone=tel, pincode=pincode, address=address, lat=lat, lon=lon, emergency_capacity=emergency_capacity, cur_emergency_availability=emergency_capacity)
         db.session.add(new_user)
         db.session.commit()
 
@@ -287,14 +309,14 @@ def emergency_hosp():
 @app.route('/emergency/book-emergency', methods=['POST'])
 def book_emergency():
     hospital_id = request.form.get('hospital_id')
-    fname = request.form.get('fname')
-    lname = request.form.get('lname')
-    dob = request.form.get('dob')
-    phone = request.form.get('phone')
-    email = request.form.get('email')
-    address = request.form.get('address')
-    pincode = request.form.get('pincode')
-    reason = request.form.get('reason')
+    fname = request.args.get('fname')
+    lname = request.args.get('lname')
+    dob = datetime.strptime(request.args.get('dob'), "%Y-%m-%d").date()
+    phone = request.args.get('phone')
+    email = request.args.get('email')
+    address = request.args.get('address')
+    pincode = request.args.get('pincode')
+    reason = request.args.get('reason')
     patient_name = f"{fname} {lname}"
 
     new_booking = EmergencyBooking(patient_name=patient_name, dob=dob, phone=phone, email=email, address=address, pincode=pincode, hospital_id=hospital_id, booking_time=datetime.now(), reason=reason)
