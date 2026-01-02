@@ -196,7 +196,6 @@
         </div>
         
         <div class="btn-group">
-            <a href="/patient/dashboard" class="btn btn-all">Dashboard</a>
             <a href="#end-content" class="btn btn-all">About Us</a>
             <a href="/emergency" class="btn btn-emergency">Emergency</a>
         </div>
@@ -204,39 +203,41 @@
 
     <div class="login">
         <div class="login-card">
-            <h2>New Appointment</h2>
-            <p>We assure to take you to the best Doctor</p>
+            <h2>Add New Doctor</h2>
+            <p>Fill the given credentials carefully</p>
 
-            <form method="POST" action="/patient/confirm-appointment">
+            <form method="POST">
                 <label>First name</label>
                 <input type="text" name="fname" required>
                 
                 <label>Last name</label>
                 <input type="text" name="lname" required>
 
-                <label>Date</label>
-                <input type="date" name="date" required>
-
                 <label>Department</label>
-                <select name="department" id="department" onchange="loadDoctors()" required>
+                <select name="department" id="department" required>
                     <option value="">-- Select Department --</option>
                     {% for dept in depts %}
                     <option value="{{ dept.id }}">{{ dept.name }}</option>
                     {% endfor %}
                 </select>
 
-                <label>Doctor</label>
-                <select name="doct_id" id="doctor" onchange="loadSlots()" required>
-                    <option value="">-- Select Doctor --</option>
-                </select>
+                <label>Qualification</label>
+                <input type="text" name="qualification" required>
 
-                <label>Select Slot</label>
-                <select name="slot" id="slot" required>
-                    <option value="">-- Select Slot --</option>
-                </select>
+                <label>Experience (in years)</label>
+                <input type="number" name="experience" required>
 
+                <div class="row" style="width: 100%;">
+                    <div class="field" style="width: 90%;">
+                        <label>Available slots for Appointment</label>
+                        <input type="text" id="slotInput" placeholder="e.g. 09:00-09:30">
+                        <button type="button" onclick="addSlot()">Add</button>
+                        <ul id="slotList"></ul>
+                        <input type="hidden" name="slots" id="slotsField">
+                    </div>
+                </div>
 
-                <button type="submit" class="login-btn">Book Appointment</button>
+                <button type="submit" class="login-btn">Add Doctor</button>
             </form>
 
         </div>
@@ -248,52 +249,29 @@
         <h2>About Us</h2>
         <p>Welcome to Hospitalizee, the ultimate solution to hospital management. We are dedicated to providing top-notch services to ensure efficient and effective healthcare management.</p>
     </div>
-
     <script>
-        function loadDoctors() {
-            const deptId = document.getElementById("department").value;
-            const doctorSelect = document.getElementById("doctor");
-            const slotSelect = document.getElementById("slot");
+        let slots = [];
 
-            doctorSelect.innerHTML = '<option value="">Loading...</option>';
-            slotSelect.innerHTML = '<option value="">-- Select Slot --</option>';
+        function addSlot() {
+            const input = document.getElementById("slotInput");
+            const value = input.value.trim();
 
-            if (!deptId) {
-                doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
-                return;
-            }
+            if (!value) return;
 
-            fetch(`/get-doctors/${deptId}`)
-                .then(res => res.json())
-                .then(data => {
-                    doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
-                    data.forEach(d => {
-                        doctorSelect.innerHTML +=
-                            `<option value="${d.id}">${d.name}, ${d.hname}</option>`;
-                    });
-                });
+            slots.push(value);
+            input.value = "";
+
+            document.getElementById("slotsField").value = JSON.stringify(slots);
+
+            renderSlots();
         }
 
-        function loadSlots() {
-            const doctorId = document.getElementById("doctor").value;
-            const slotSelect = document.getElementById("slot");
-
-            slotSelect.innerHTML = '<option value="">Loading...</option>';
-
-            if (!doctorId) {
-                slotSelect.innerHTML = '<option value="">-- Select Slot --</option>';
-                return;
-            }
-
-            fetch(`/get-slots/${doctorId}`)
-                .then(res => res.json())
-                .then(data => {
-                    slotSelect.innerHTML = '<option value="">-- Select Slot --</option>';
-                    data.forEach(slot => {
-                        slotSelect.innerHTML +=
-                            `<option value="${slot}">${slot}</option>`;
-                    });
-                });
+        function renderSlots() {
+            const ul = document.getElementById("slotList");
+            ul.innerHTML = "";
+            slots.forEach((s, i) => {
+                ul.innerHTML += `<li>${s}</li>`;
+            });
         }
     </script>
 

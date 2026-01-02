@@ -127,8 +127,8 @@
                     {% if u_app %}
                         {% for app in u_app %}
                         <tr>
-                            <td>{{ app.appointment_date }}</td>
-                            <td>{{ app.appointment_time }}</td>
+                            <td>{{ app.date }}</td>
+                            <td>{{ app.slot }}</td>
                             <td>{{ app.doctor_name }}</td>
                             <td>{{ app.hospital_name }}</td>
                             <td style="text-align: center;">
@@ -164,8 +164,8 @@
                     {% if p_app %}
                         {% for app in p_app %}
                         <tr>
-                            <td>{{ app.appointment_date }}</td>
-                            <td>{{ app.appointment_time }}</td>
+                            <td>{{ app.date }}</td>
+                            <td>{{ app.slot }}</td>
                             <td>{{ app.doctor_name }}</td>
                             <td>{{ app.hospital_name }}</td>
                             <td>{{ app.prescription }}</td>
