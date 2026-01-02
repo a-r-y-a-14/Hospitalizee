@@ -226,9 +226,15 @@
                 </select>
 
                 <label>Doctor</label>
-                <select name="doctor" id="doctor" required>
+                <select name="doct_id" id="doctor" onchange="loadSlots()" required>
                     <option value="">-- Select Doctor --</option>
                 </select>
+
+                <label>Select Slot</label>
+                <select name="slot" id="slot" required>
+                    <option value="">-- Select Slot --</option>
+                </select>
+
 
                 <button type="submit" class="login-btn">Book Appointment</button>
             </form>
@@ -244,28 +250,53 @@
     </div>
 
     <script>
-    function loadDoctors() {
-        const deptId = document.getElementById("department").value;
-        const doctorSelect = document.getElementById("doctor");
+        function loadDoctors() {
+            const deptId = document.getElementById("department").value;
+            const doctorSelect = document.getElementById("doctor");
+            const slotSelect = document.getElementById("slot");
 
-        doctorSelect.innerHTML = '<option value="">Loading...</option>';
+            doctorSelect.innerHTML = '<option value="">Loading...</option>';
+            slotSelect.innerHTML = '<option value="">-- Select Slot --</option>';
 
-        if (!deptId) {
-            doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
-            return;
+            if (!deptId) {
+                doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
+                return;
+            }
+
+            fetch(`/get-doctors/${deptId}`)
+                .then(res => res.json())
+                .then(data => {
+                    doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
+                    data.forEach(d => {
+                        doctorSelect.innerHTML +=
+                            `<option value="${d.id.split(',')[0]}">${d.name}, ${d.hname}</option>`;
+                    });
+                });
         }
 
-        fetch(`/get-doctors/${deptId}`)
-            .then(res => res.json())
-            .then(data => {
-                doctorSelect.innerHTML = '<option value="">-- Select Doctor --</option>';
-                data.forEach(d => {
-                    doctorSelect.innerHTML +=
-                        `<option value="${d.id}">${d.name}, ${d.hname}</option>`;
+        function loadSlots() {
+            const doctorId = document.getElementById("doctor").value;
+            const slotSelect = document.getElementById("slot");
+
+            slotSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (!doctorId) {
+                slotSelect.innerHTML = '<option value="">-- Select Slot --</option>';
+                return;
+            }
+
+            fetch(`/get-slots/${doctorId}`)
+                .then(res => res.json())
+                .then(data => {
+                    slotSelect.innerHTML = '<option value="">-- Select Slot --</option>';
+                    data.forEach(slot => {
+                        slotSelect.innerHTML +=
+                            `<option value="${slot}">${slot}</option>`;
+                    });
                 });
-            });
-}
+        }
     </script>
+
 
 </body>
 </html>

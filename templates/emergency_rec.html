@@ -229,14 +229,14 @@
             <div id="content">
                 <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" > Nearest available hospitals</h3>
             </div>
-            <form method="POST" action="/emergency/book-emergency">
+            <form method="POST" action="/emergency/book-emergency?fname={{ fname }}&lname={{ lname }}&dob={{ dob }}&phone={{ phone }}&email={{ email }}&address={{ address }}&pincode={{ pincode }}&reason={{ reason }}">
             <div id="table">
                 <table class="table">
                     <tr style="font-family: system-ui;">
                         <th scope="col">Hospital Name</th>
                         <th scope="col">Address</th>
                         <th scope="col">Emergency bed availabe</th>
-                        <th scope="col">Book bed</th>
+                        <th scope="col">Select</th>
                     </tr>
                     {% if hospitals %}
                         {% for hosp in hospitals %}
