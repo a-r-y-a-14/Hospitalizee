@@ -5,11 +5,11 @@ from sqlalchemy.dialects.postgresql import JSON
 import math
 
 app = Flask(__name__)
-app.secret_key = "dont_look_at_my_key"
+app.secret_key = "dont_look_at_my_key" 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hospitalizee.db'
-db = SQLAlchemy(app)
+db = SQLAlchemy(app) #hello
 
-today = date.today()
+today = date.today() #hello
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371  # Earth radius in KM
     lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
