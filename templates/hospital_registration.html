@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Hospital</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
             margin: 0;
@@ -210,7 +209,11 @@
                 <div class ="row">
                     <div class="field">
                         <label>Email</label>
-                        <input type="email" name="email" placeholder="example@mail.com" required>
+                        {% if email %}
+                            <input type="email" name="email" value="{{ email }}" readonly>
+                        {% else %}
+                            <input type="email" name="email" placeholder="example@mail.com" required>
+                        {% endif %}
                     </div>
                     <div class="field">
                         <label>Telephone Number</label>

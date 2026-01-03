@@ -2,12 +2,23 @@ from flask import Flask, render_template, request, redirect, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy import Date
 import math
+import json
+from firebase_admin import credentials, auth
+import firebase_admin
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+cred_path = os.path.join(BASE_DIR, "firebase_key.json")
+
+cred = credentials.Certificate(cred_path)
+firebase_admin.initialize_app(cred)
 
 app = Flask(__name__)
 app.secret_key = "dont_look_at_my_key" 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hospitalizee.db'
-db = SQLAlchemy(app) #hello
+db = SQLAlchemy(app)
 
 today = date.today() #hello
 def haversine(lat1, lon1, lat2, lon2):
@@ -46,20 +57,21 @@ class Hospital(db.Model):
     lat = db.Column(db.Float, nullable=True)
     lon = db.Column(db.Float, nullable=True)
     emergency_capacity = db.Column(db.Integer, nullable=False)
+    depts = db.Column(JSON, nullable=True, default=list)
     cur_emergency_availability = db.Column(db.Integer, nullable=False)
 
 class Departments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
 
 class Doctor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
     department = db.Column(db.String(100), db.ForeignKey('departments.id'), nullable=False)
     qualification = db.Column(db.String(200), nullable=False)
     experience = db.Column(db.Integer, nullable=False)
     hospital_id = db.Column(db.Integer, db.ForeignKey('hospital.id'), nullable=False)
-    slots = db.Column(JSON, nullable=False)
+    slots = db.Column(JSON, nullable=False, default=list)
 
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,7 +80,7 @@ class Appointment(db.Model):
     lname = db.Column(db.String(100), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id'), nullable=False)
     hospital_id = db.Column(db.Integer, db.ForeignKey('hospital.id'), nullable=False)
-    appointment_date = db.Column(db.DateTime, nullable=False)
+    appointment_date = db.Column(Date, nullable=False)
     appointment_slot = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(50), nullable=False)
 
@@ -118,17 +130,41 @@ def patient_login():
 
     return render_template('patient_login.html')
 
+@app.route("/patient/verify-login", methods=["POST"])
+def patient_verify_login():
+    token = request.json.get("token")
+
+    try:
+        decoded = auth.verify_id_token(token)
+        email = decoded["email"]
+        user = db.session.query(Patient.id).filter(Patient.email == email).first()
+        if not user:
+            session['user_email'] = email
+            return jsonify({"status": "register", "email": email})
+        session['user_id'] = user.id
+        return jsonify({
+            "status": "success",
+        })
+    except:
+        return jsonify({"status": "invalid"}), 401
+
 @app.route('/patient/dashboard')
 def patient_dashboard():
     if 'user_id' not in session:
-        return redirect('/patient/login')
+        return render_template(
+            'alert.html', 
+            message="You are not logged in.",
+            redirect_url="/patient/login"
+        )
     user = Patient.query.get(session['user_id'])
-    u_app = db.session.query(Appointment, Doctor.name.label('doctor_name'), Hospital.name.label('hospital_name')).join(Doctor, Appointment.doctor_id == Doctor.id).join(Hospital, Appointment.hospital_id == Hospital.id).filter(Appointment.patient_id == user.id, Appointment.appointment_date >= today).all()
-    p_app = db.session.query(Appointment, Doctor.name.label('doctor_name'), Hospital.name.label('hospital_name')).join(Doctor, Appointment.doctor_id == Doctor.id).join(Hospital, Appointment.hospital_id == Hospital.id).filter(Appointment.patient_id == user.id, Appointment.appointment_date < today).all()
+    u_app = db.session.query(Appointment.appointment_date.label('date'), Appointment.appointment_slot.label('slot'), Doctor.name.label('doctor_name'), Hospital.name.label('hospital_name')).join(Doctor, Appointment.doctor_id == Doctor.id).join(Hospital, Appointment.hospital_id == Hospital.id).filter(Appointment.patient_id == user.id, Appointment.appointment_date >= today).all()
+    p_app = db.session.query(Appointment.appointment_date.label('date'), Appointment.appointment_slot.label('slot'), Doctor.name.label('doctor_name'), Hospital.name.label('hospital_name')).join(Doctor, Appointment.doctor_id == Doctor.id).join(Hospital, Appointment.hospital_id == Hospital.id).filter(Appointment.patient_id == user.id, Appointment.appointment_date < today).all()
+    session['patient_id'] = user.id
     return render_template('patient_dashboard.html', user=user, u_app=u_app, p_app=p_app)
 
 @app.route('/patient/logout')
 def logout():
+    session.clear()
     return render_template(
         'alert.html',
         message="You have been logged out successfully.",
@@ -137,8 +173,8 @@ def logout():
 
 @app.route('/patient/register', methods=['GET', 'POST'])
 def new_patient():
+    user_email = session['user_email']
     if request.method == "POST":
-        email = request.form.get('email')
         password = request.form.get('password')
         fname = request.form.get('fname')
         lname = request.form.get('lname')
@@ -148,6 +184,11 @@ def new_patient():
 
         lat = request.form.get('lat')
         lon = request.form.get('long')
+
+        if user_email:
+            email = user_email
+        else:
+            email = request.form.get('email')
 
 
         if Patient.query.filter_by(email=email).first():
@@ -167,41 +208,47 @@ def new_patient():
             redirect_url="/patient/login"
         )
     
-    return render_template('patient_registration.html')
+    return render_template('patient_registration.html', email=user_email)
 
-@app.route('/patient/new-appointment')
+@app.route('/patient/new-appointment', methods=['GET', 'POST'])
 def patient_new_appointment():
     depts = Departments.query.all()
     return render_template('patient_new_appointment.html', depts=depts)
 
 @app.route('/get-doctors/<int:dept_id>')
 def get_doctors(dept_id):
-    doctors = Doctor.query.filter_by(department_id=dept_id).all()
+    doctors = Doctor.query.filter_by(department=dept_id).all()
     hospitals = Hospital.query.all()
     return jsonify([
         {"id": f"{d.id},{h.id}", "name": d.name, "hname" : h.name}
         for d in doctors for h in hospitals if d.hospital_id == h.id
     ])
 
-@app.route('/get-slots/<int:doctor_id>')
+@app.route('/get-slots/<doctor_id>')
 def get_slots(doctor_id):
-    doctor = Doctor.query.get_or_404(doctor_id)
+    doctor = Doctor.query.get_or_404(doctor_id.split(',')[0])
     return jsonify(doctor.slots)
 
 
-@app.route('/patient/confirm-appoiintment', methods=['POST'])
+@app.route('/patient/confirm-appointment', methods=['POST'])
 def confirm_appointment():
     fname = request.form.get('fname')
     lname = request.form.get('lname')
     date = datetime.strptime(request.form.get('date'), "%Y-%m-%d").date()
-    patient_id = request.args.get('patient_id')
+    patient_id = session['patient_id']
     doct_id = request.form.get('doct_id').split(',')[0]
     hosp_id = request.form.get('doct_id').split(',')[1]
     slot = request.form.get('slot')
 
-    new_app = Appointment(fname=fname, lname=lname, appointment_date=date, patient_id=patient_id, doctor_id=doct_id, hospital_id=hosp_id, slot=slot, status="Pending")
+    new_app = Appointment(fname=fname, lname=lname, appointment_date=date, patient_id=patient_id, doctor_id=doct_id, hospital_id=hosp_id, appointment_slot=slot, status="Pending")
+    db.session.add(new_app)
+    db.session.commit()
 
-
+    return render_template(
+        'alert.html',
+        message="Appointment registered successfully!",
+        redirect_url="/patient/dashboard"
+    )
 
 @app.route('/hospital/login', methods=['GET', 'POST'])
 def hospital_login():
@@ -228,25 +275,105 @@ def hospital_login():
 
     return render_template('hospital_login.html')
 
+@app.route("/hospital/verify-login", methods=["POST"])
+def hospital_verify_login():
+    token = request.json.get("token")
+
+    try:
+        decoded = auth.verify_id_token(token)
+        email = decoded["email"]
+        user = db.session.query(Hospital.id).filter(Hospital.email == email).first()
+        if not user:
+            session['user_email'] = email
+            return jsonify({"status": "register", "email": email})
+        session['user_id'] = user.id
+        return jsonify({
+            "status": "success",
+        })
+    except:
+        return jsonify({"status": "invalid"}), 401
+
 @app.route('/hospital/dashboard')
 def hospital_dashboard():
     if 'user_id' not in session:
-        return redirect('/hospital/login')
+        return render_template(
+            'alert.html',
+            message="You are not logged in.",
+            redirect_url="/hospital/login"
+        )
     user = Hospital.query.get(session['user_id'])
+    session['hospital_id'] = user.id
     return render_template('hospital_dashboard.html', user=user)
 
 @app.route('/hospital/logout')
 def hospital_logout():
+    session.clear()
     return render_template(
         'alert.html',
         message="You have been logged out successfully.",
         redirect_url="/hospital/login"
     )
 
+@app.route('/hospital/new-doctor', methods=['GET', 'POST'])
+def hospital_new_doctor():
+    if 'hospital_id' not in session:
+        return redirect('/hospital/login')
+    if request.method == "POST":
+        fname = request.form.get('fname')
+        lname = request.form.get('lname')
+        name = f"{fname} {lname}"
+        department = request.form.get('department')
+        qualification = request.form.get('qualification')
+        experience = request.form.get('experience')
+        slots = json.loads(request.form['slots'])
+        hospital_id = session['hospital_id']
+
+        new_doctor = Doctor(name=name, department=department, qualification=qualification, experience=experience, hospital_id=hospital_id, slots=slots)
+        db.session.add(new_doctor)
+        db.session.commit()
+
+        session['user_id'] = hospital_id
+        return render_template(
+            'alert.html',
+            message="Doctor added successfully!",
+            redirect_url="/hospital/dashboard?"
+        )
+    depts = Departments.query.all()
+    return render_template('hospital_new_doctor.html', depts=depts)
+
+@app.route('/hospital/new-department', methods=['GET', 'POST'])
+def hospital_new_department():
+    if 'hospital_id' not in session:
+        return redirect('/hospital/login')
+    if request.method == "POST":
+        name = request.form.get('name')
+
+        dept = Departments.query.filter_by(name=name).first()
+        if dept:
+            dept_id = db.session.query(Departments.id).filter(Departments.name == name).first()
+            hosp = Hospital.query.get(session['hospital_id'])
+            hosp.depts.append(dept_id)
+            db.session.commit()
+        else:
+            new_dept = Departments(name=name)
+            db.session.add(new_dept)
+            db.session.commit()
+            dept_id = db.session.query(Departments.id).filter(Departments.name == name).first()
+            hosp = Hospital.query.get(session['hospital_id'])
+            hosp.depts.append(dept_id)
+            db.session.commit()
+
+        return render_template(
+            'alert.html',
+            message="Department added successfully!",
+            redirect_url="/hospital/dashboard"
+        )
+    return render_template('hospital_new_department.html')
+
 @app.route('/hospital/register', methods=['GET', 'POST'])
 def hospital_register():
+    user_email = session['user_email']
     if request.method == "POST":
-        email = request.form.get('email')
         password = request.form.get('password')
         name = request.form.get('name')
         pincode = request.form.get('pincode')
@@ -256,6 +383,11 @@ def hospital_register():
 
         lat = request.form.get('lat')
         lon = request.form.get('long')
+
+        if user_email:
+            email = user_email
+        else:
+            email = request.form.get('email')
 
         emergency_capacity = request.form.get('emergency_capacity')
 
@@ -277,7 +409,7 @@ def hospital_register():
             redirect_url="/hospital/login"
         )
 
-    return render_template('hospital_registration.html')
+    return render_template('hospital_registration.html', email=user_email)
 
 @app.route('/emergency')
 def emergency():

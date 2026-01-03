@@ -81,8 +81,46 @@
 
         .google-btn {
             display: flex;
+            align-items: center;
             justify-content: center;
+            gap: 12px;
+
+            width: 100%;
+            padding: 10px 16px;
+
+            background-color: #ffffff;
+            color: #3c4043;
+
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+
+            font-size: 14px;
+            font-weight: 500;
+            font-family: Arial, sans-serif;
+
+            cursor: pointer;
+            transition: box-shadow 0.2s ease, background-color 0.2s ease;
         }
+
+        .google-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .google-btn:hover {
+            background-color: #f7f8f8;
+            box-shadow: 0 1px 3px rgba(60,64,67,0.3);
+        }
+
+        .google-btn:active {
+            background-color: #eeeeee;
+        }
+
+        .google-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66,133,244,0.3);
+        }
+
 
         .login-btn:hover {
             background-color: #2c80b4;
@@ -201,20 +239,10 @@
 
             <div class="divider">OR</div>
             
-            <div class="google-btn">
-                <div id="g_id_onload"
-                    data-client_id="416195245426-mfc1cesv16nms5o79dv3o7orptqasrhg.apps.googleusercontent.com"
-                    data-callback="handleCredentialResponse">
-                </div>
-
-                <div class="g_id_signin"
-                    data-type="standard"
-                    data-size="large"
-                    data-theme="outline"
-                    data-text="signin_with"
-                    data-shape="rectangular">
-                </div>
-            </div>
+            <button id="googleLogin" class="google-btn">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+                <span>Sign in with Google</span>
+            </button>
 
             <div class="links">
                 <a href="#">Forgot Password?</a> <br><br>
@@ -230,16 +258,51 @@
         <p>Welcome to Hospitalizee, the ultimate solution to hospital management. We are dedicated to providing top-notch services to ensure efficient and effective healthcare management.</p>
     </div>
 
-    <script>
-        function handleCredentialResponse(response) {
-            console.log("Google JWT Token:", response.credential);
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup } 
+        from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-            // Send token to backend (Flask / Django / Node)
-            fetch('/google-login', { method: 'POST', body: response.credential })
+        const firebaseConfig = {
+        apiKey: "AIzaSyCYzbHN4eaptRRUIM0KaqrzBC-b9HC35t4",
+        authDomain: "hospitalizee-8f421.firebaseapp.com",
+        projectId: "hospitalizee-8f421",
+        storageBucket: "hospitalizee-8f421.firebasestorage.app",
+        messagingSenderId: "778708113128",
+        appId: "1:778708113128:web:c0f824e79dcc110a755b5d"
+        };
 
-            alert("Google Login Successful!");
-        }
-</script>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        document.getElementById("googleLogin").onclick = () => {
+            signInWithPopup(auth, provider)
+            .then(async result => {
+                const token = await result.user.getIdToken();
+
+                fetch("/patient/verify-login", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ token })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        window.location.href = "/patient/dashboard";
+                    }
+                    else if (data.status === "register") {
+                        alert("User not found! Please register to continue.");
+                        window.location.href = `/patient/register?email=${data.email}`;
+                    }
+                    else {
+                        alert("Login failed: " + data.message);
+                    }
+                });
+            })
+            .catch(err => alert(err.message));
+        };
+    </script>
 
 </body>
 </html>
