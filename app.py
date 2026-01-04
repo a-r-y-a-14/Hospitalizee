@@ -173,7 +173,7 @@ def logout():
 
 @app.route('/patient/register', methods=['GET', 'POST'])
 def new_patient():
-    user_email = session['user_email']
+    user_email = session.get('user_email')
     if request.method == "POST":
         password = request.form.get('password')
         fname = request.form.get('fname')
@@ -302,8 +302,13 @@ def hospital_dashboard():
             redirect_url="/hospital/login"
         )
     user = Hospital.query.get(session['user_id'])
+    depts = []
+    if user.depts and isinstance(user.depts, list):
+        depts = Departments.query.filter(
+            Departments.id.in_(user.depts)
+        ).all()
     session['hospital_id'] = user.id
-    return render_template('hospital_dashboard.html', user=user)
+    return render_template('hospital_dashboard.html', user=user, depts=depts)
 
 @app.route('/hospital/logout')
 def hospital_logout():
@@ -372,7 +377,7 @@ def hospital_new_department():
 
 @app.route('/hospital/register', methods=['GET', 'POST'])
 def hospital_register():
-    user_email = session['user_email']
+    user_email = session.get('user_email')
     if request.method == "POST":
         password = request.form.get('password')
         name = request.form.get('name')
@@ -413,7 +418,19 @@ def hospital_register():
 
 @app.route('/emergency')
 def emergency():
-    return render_template('emergency.html')
+    fname = request.args.get('fname')
+    lname = request.args.get('lname')
+    dob = request.args.get('dob')
+    phone = request.args.get('phone')
+    email = request.args.get('email')
+    address = request.args.get('address')
+    pincode = request.args.get('pincode')
+    reason = request.args.get('reason')
+
+    if not all([fname, lname, dob, phone, email, address, pincode, reason]):
+        return render_template('emergency.html')
+    
+    return render_template('emergency.html', fname=fname, lname=lname, dob=dob, phone=phone, email=email, address=address, pincode=pincode, reason=reason)
 
 @app.route('/emergency_hosp', methods=['POST'])
 def emergency_hosp():

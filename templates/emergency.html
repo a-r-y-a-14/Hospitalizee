@@ -201,39 +201,39 @@
 
             <form method="POST" action="/emergency_hosp">
                 <label>First name</label>
-                <input type="text" name="fname" required>
+                <input type="text" name="fname" value="{{ fname if fname else '' }}" required>
                 
                 <label>Last name</label>
-                <input type="text" name="lname" required>
+                <input type="text" name="lname" value="{{ lname if lname else '' }}" required>
 
                 <div class ="row">
                     <div class="field">
                         <label>Date of Birth</label>
-                        <input type="date" name="dob" required>
+                        <input type="date" name="dob" value="{{ dob if dob else '' }}" required>
                     </div>
                     <div class="field">
                         <label>Phone Number</label>
-                        <input type="text" name="phone" placeholder="Without Country Code" required>
+                        <input type="text" name="phone" value="{{ phone if phone else '' }}" placeholder="Without Country Code" required>
                     </div>
                 </div>
                 
                 <label>Email</label>
-                <input type="email" name="email" placeholder="example@mail.com" required>
+                <input type="email" name="email" value="{{ email if email else '' }}" placeholder="example@mail.com" required>
 
                 <div class="row">
                     <div class="field" style="width: 300px;">
                         <label>Address</label>
-                        <input type="text" name="address" placeholder="Full Address or Use Current Location" required>
+                        <input type="text" name="address" value="{{ address if address else '' }}" placeholder="Full Address or Use Current Location" required>
                         <button type="button" onclick="getLocation()">Use My Location</button>
                     </div>
                     <div class="field" style="width: 97px;">
                         <label>Pincode</label>
-                        <input type="text" name="pincode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="Pincode" title="Enter valid pincode" required>
+                        <input type="text" name="pincode" value="{{ pincode if pincode else '' }}" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="Pincode" title="Enter valid pincode" required>
                     </div>
                 </div>
                 
                 <label>Reason for visit</label>
-                <input type="text" name="emergency_reason" placeholder="eg- shortness of breath, blood loss etc" required>
+                <input type="text" name="emergency_reason" value="{{ reason if reason else '' }}" placeholder="eg- shortness of breath, blood loss etc" required>
 
                 <button type="submit" class="login-btn">Next</button>
 

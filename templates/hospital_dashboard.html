@@ -179,8 +179,9 @@
                         <th scope="col">Name</th>
                         <th scope="col" style="width: 40%;">Details</th>
                     </tr>
+                    {% for dept in depts %}
                     <tr>
-                        <td>Orthopaedic</td>
+                        <td>{{ dept.name }}</td>
                         <td style="text-align: right;">
                             <a href="#"
                             class="btn btn-all" style=" padding-top: 2px; background-color: rgba(17, 145, 191, 1);">
@@ -188,10 +189,7 @@
                             </a>
                         </td>
                     </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                    {% endfor %}
                 </table>
             </div>
         </div>
