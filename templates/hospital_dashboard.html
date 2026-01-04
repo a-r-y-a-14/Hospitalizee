@@ -110,9 +110,12 @@
     </div>
     <div class="login">
         <div class="login-card">
+            <div style="margin-top:70px; margin-bottom:60px; color: Black; text-align:center; ">
+                <h1 style="font-size:55px; font-family: Times New Roman, serif;">{{ user.name }}</h1>
+            </div>
             <div style="padding: 5px 25px; align-items: center; justify-content: space-between; display: flex;">
                 <h2>Welcome {{ user.name }}, {{ user.id }}</h2>
-                <div class="btn-group"  style="padding-right: 100px;">
+                <div class="btn-group">
                     <a href="/hospital/new-doctor" class="btn btn-all" style=" background-color: rgb(45, 179, 4); font-size: 20px;">Add new Doctor</a>
                     <a href="/hospital/new-department" class="btn btn-all" style=" background-color: rgb(45, 179, 4); font-size: 20px;">Add new Department</a>
                 </div>
