@@ -308,7 +308,30 @@ def hospital_dashboard():
             Departments.id.in_(user.depts)
         ).all()
     session['hospital_id'] = user.id
-    return render_template('hospital_dashboard.html', user=user, depts=depts)
+    
+    doctors = (
+        db.session.query(
+            Doctor.name,
+            Departments.name.label("dept_name")
+        )
+        .join(Departments, Doctor.department == Departments.id)
+        .filter(Doctor.hospital_id == user.id)
+        .all()
+    )
+    
+    total_beds = user.emergency_capacity
+    available_beds = user.cur_emergency_availability
+    occupied_beds = total_beds - available_beds
+
+    return render_template(
+        'hospital_dashboard.html',
+        user=user,
+        depts=depts,
+        doctors=doctors,
+        total_beds=total_beds,
+        available_beds=available_beds,
+        occupied_beds=occupied_beds
+    )
 
 @app.route('/hospital/logout')
 def hospital_logout():

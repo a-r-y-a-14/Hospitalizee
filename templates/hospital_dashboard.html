@@ -129,22 +129,22 @@
                         <th scope="col">Total beds</th>
                     </tr>
                     <tr>
-                        <td>20</td>
+                        <td>{{ available_beds }}</td>
+
                         <td>
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>20</span>
-                                <a href=""
-                                class="btn btn-all"
+                                <span>{{ occupied_beds }}</span>
+                                <a href="#" class="btn btn-all"
                                 style="background-color: rgba(17, 145, 191, 1);">
                                     Update
                                 </a>
                             </div>
                         </td>
+
                         <td>
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>30</span>
-                                <a href=""
-                                class="btn btn-all"
+                                <span>{{ total_beds }}</span>
+                                <a href="#" class="btn btn-all"
                                 style="background-color: rgba(17, 145, 191, 1);">
                                     Update
                                 </a>
@@ -160,14 +160,19 @@
                         <th scope="col">Assigned Doctor</th>
                         <th scope="col">Department</th>
                     </tr>
-                    <tr>
-                        <td>Priya Singh</td>
-                        <td>Orthopaedic</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
+
+                    {% if doctors %}
+                        {% for doc in doctors %}
+                        <tr>
+                            <td>{{ doc.name }}</td>
+                            <td>{{ doc.dept_name }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="2" style="text-align:center;">No doctors added yet</td>
+                        </tr>
+                    {% endif %}
                 </table>
             </div>
             <div id="content" style="padding: 0px 25px">
