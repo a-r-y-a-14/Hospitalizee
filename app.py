@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy import Date
 import math
 import json
@@ -57,7 +58,7 @@ class Hospital(db.Model):
     lat = db.Column(db.Float, nullable=True)
     lon = db.Column(db.Float, nullable=True)
     emergency_capacity = db.Column(db.Integer, nullable=False)
-    depts = db.Column(JSON, nullable=True, default=list)
+    depts = db.Column(JSON, nullable=True)
     cur_emergency_availability = db.Column(db.Integer, nullable=False)
 
 class Departments(db.Model):
@@ -303,10 +304,12 @@ def hospital_dashboard():
         )
     user = Hospital.query.get(session['user_id'])
     depts = []
-    if user.depts and isinstance(user.depts, list):
-        depts = Departments.query.filter(
-            Departments.id.in_(user.depts)
-        ).all()
+    if user.depts:
+        dept_ids = [dept_id for dept_id in user.depts]
+        for id in dept_ids:
+            dept = Departments.query.get(int(id))
+            if dept:
+                depts.append(dept.name)
     session['hospital_id'] = user.id
     
     doctors = (
@@ -378,9 +381,18 @@ def hospital_new_department():
 
         dept = Departments.query.filter_by(name=name).first()
         if dept:
-            dept_id = db.session.query(Departments.id).filter(Departments.name == name).first()
+            dept_id = dept.id
             hosp = Hospital.query.get(session['hospital_id'])
+            if not hosp.depts:
+                hosp.depts = []
+            if dept_id in hosp.depts:
+                return render_template(
+                    'alert.html',
+                    message="Department already exists in your hospital!",
+                    redirect_url="/hospital/dashboard"
+                )
             hosp.depts.append(dept_id)
+            flag_modified(hosp, "depts")
             db.session.commit()
         else:
             new_dept = Departments(name=name)
