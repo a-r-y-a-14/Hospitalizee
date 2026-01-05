@@ -159,6 +159,10 @@ def classify_emergency(text):
 def home():
     return render_template('home.html')
 
+@app.route('/about')
+def about():
+    return render_template('about_us.html')
+
 @app.route('/patient/login', methods=['GET', 'POST'])
 def patient_login():
     if request.method == "POST":
@@ -183,6 +187,7 @@ def patient_login():
             )
 
     return render_template('patient_login.html')
+
 
 @app.route("/patient/verify-login", methods=["POST"])
 def patient_verify_login():

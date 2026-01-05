@@ -104,7 +104,7 @@
         
         <div class="btn-group">
             <a href="/hospital/logout" class="btn btn-all">Logout</a>
-            <a href="#end-content" class="btn btn-all">About Us</a>
+            <a href="/about" class="btn btn-all">About Us</a>
             <a href="/emergency" class="btn btn-emergency">Emergency</a>
         </div>
     </div>
@@ -172,10 +172,15 @@
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="2" style="text-align:center;">No doctors added yet</td>
+                            <td colspan="3" style="text-align:center;">No doctors added yet</td>
                         </tr>
                     {% endif %}
                 </table>
+                <div style="height: 10px;"></div>
+                    <a href="/hospital/update-beds/occupied" class="btn btn-all"
+                        style="background-color: rgba(17, 145, 191, 1);">
+                        Update
+                    </a>
             </div>
             <div id="content" style="padding: 0px 25px">
                 <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" >Depatrments Present</h3>
