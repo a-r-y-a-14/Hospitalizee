@@ -103,7 +103,7 @@
         </div>
         
         <div class="btn-group">
-            <a href="/hospital/" class="btn btn-all">Dashboard</a>
+            <a href="/hospital/dashboard?user_id={{ user.id }}" class="btn btn-all">Dashboard</a>
             <a href="/about" class="btn btn-all">About Us</a>
         </div>
     </div>
@@ -158,7 +158,7 @@
                         <td>{{ doc.name }}</td>
                         <td>{{ doc.dept }}</td>
                         <td style="text-align: center;">
-                            <a href="#"
+                            <a href="/hospital/dashboard/emergency/add-doctor?user_id={{ user.id }}&doc_id={{ doc.id }}"
                             class="btn btn-all" style=" padding: 2px; background-color: rgb(39, 197, 84);">
                                 Add
                             </a>

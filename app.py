@@ -419,9 +419,18 @@ def emergency_doctors():
     user_id = request.args.get('user_id')
     user = Hospital.query.filter_by(id=user_id).first()
     emr_list = user.cur_emergency_doctors
-    emr_docs = Doctor.query(Doctor.id.label('id'), Doctor.name.label('name'), Departments.name.label('dept')).join(Departments, Doctor.department_id == Departments.id).filter(Doctor.id.in_(emr_list)).all()
-    other_docs = Doctor.query(Doctor.id.label('id'), Doctor.name.label('name'), Departments.name.label('dept')).join(Departments, Doctor.department_id == Departments.id).filter(Doctor.id.notin_(emr_list), Doctor.hospital_id == user_id).all()
-    return render_template('emergency_doctors', user=user, emr_docs=emr_docs, other_docs=other_docs)
+    emr_docs = db.session.query(Doctor.id.label('id'), Doctor.name.label('name'), Departments.name.label('dept')).join(Departments, Doctor.department_id == Departments.id).filter(Doctor.id.in_(emr_list)).all()
+    other_docs = db.session.query(Doctor.id.label('id'), Doctor.name.label('name'), Departments.name.label('dept')).join(Departments, Doctor.department_id == Departments.id).filter(Doctor.id.notin_(emr_list), Doctor.hospital_id == user_id).all()
+    return render_template('emergency_doctors.html', user=user, emr_docs=emr_docs, other_docs=other_docs)
+
+@app.route('/hospital/dashboard/emergency/add-doctor')
+def add_doctor():
+    user_id = request.args.get('user_id')
+    user = Hospital.query.filter_by(id=user_id).first()
+    doc_id = request.args.get('doc_id')
+    user.cur_emergency_doctors.append(doc_id)
+    db.session.commit()
+    return render_template('alert.html', message = 'Doctor added successfully', redirect_url = f"/hospital/dashboard/emergency-doctors?user_id={user_id}")
 
 @app.route('/hospital/logout')
 def hospital_logout():
