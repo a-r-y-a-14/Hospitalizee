@@ -103,17 +103,17 @@
         </div>
         
         <div class="btn-group">
-            <a href="/hospital/" class="btn btn-all">Dashboard</a>
+            <a href="/hospital/dashboard?user_id={{ hospital.id }}" class="btn btn-all">Dashboard</a>
             <a href="#end-content" class="btn btn-all">About Us</a>
         </div>
     </div>
     <div class="login">
         <div class="login-card">
             <div style="margin-top:70px; margin-bottom:60px; color: Black; text-align:center; ">
-                <h1 style="font-size:55px; font-family: Times New Roman, serif;">Peerless Hospital</h1>
+                <h1 style="font-size:55px; font-family: Times New Roman, serif;">{{ hospital.name }}</h1>
             </div>
             <div style="text-align:center; ">
-                <h2>Department: Cardiology</h2>
+                <h2>Department: {{ dept }}</h2>
             </div>
             <div id="content" style="padding: 0px 25px; text-align: center">
                 <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" >Available Doctors</h3>
@@ -128,11 +128,13 @@
                         <th scope="col">Available Slots</th>
                     </tr>
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        {% for doc in docs %}
+                            <th scope="col">{{ doc.id }}</th>
+                            <th scope="col">{{ doc.fname }} {{ doc.lname }}</th>
+                            <th scope="col">{{ doc.qualification }}</th>
+                            <th scope="col">{{ doc.experience }}</th>
+                            <th scope="col">{{ doc.slots | join(', ') }}</th>
+                        {% endfor %}
                     </tr>
                 </table>
             </div>

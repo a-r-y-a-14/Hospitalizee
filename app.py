@@ -349,13 +349,17 @@ def hospital_verify_login():
 
 @app.route('/hospital/dashboard')
 def hospital_dashboard():
-    if 'user_id' not in session:
+    if 'user_id' not in session and not request.args.get('user_id'):
         return render_template(
             'alert.html',
             message="You are not logged in.",
             redirect_url="/hospital/login"
         )
-    user = Hospital.query.get(session['user_id'])
+    if 'user_id' in session:
+        user_id = session['user_id']
+    else:
+        user_id = request.args.get('user_id')
+    user = Hospital.query.filter_by(id=user_id).first()
     depts = []
     if user.depts:
         dept_ids = [dept_id for dept_id in user.depts]
@@ -494,6 +498,15 @@ def update_total_beds():
         'emergency_total_beds.html', 
         max_value=200
     )
+
+@app.route('/hospital/view-department')
+def view_departments():
+    hosp_id = request.args.get('h_id')
+    dept = request.args.get('dept')
+    dept_id = Departments.query.filter_by(id=dept).first()
+    docs = Doctor.query.filter(Doctor.department_id == dept_id, Doctor.hospital_id == hosp_id)
+    hospital = Hospital.query.filter_by(id=hosp_id).first()
+    return render_template('hospital_dashboard_view_departments.html', docs=docs, dept=dept, hospital=hospital)
 
 @app.route('/hospital/register', methods=['GET', 'POST'])
 def hospital_register():
