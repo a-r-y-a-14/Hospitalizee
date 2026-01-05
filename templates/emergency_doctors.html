@@ -126,13 +126,13 @@
                         <th scope="col" style="width:35%;">Department</th>
                         <th scope="col" style="width:15%;">Edit</th>
                     </tr>
-                    {% for doc in emer_docs %}
+                    {% for doc in emr_docs %}
                     <tr>
                         <td>{{ doc.id }}</td>
                         <td>{{ doc.name }}</td>
                         <td>{{ doc.dept }}</td>
                         <td style="text-align: center;">
-                            <a href="#"
+                            <a href="/hospital/dashboard/emergency/remove-doctor?user_id={{ user.id }}&doc_id={{ doc.id }}"
                             class="btn btn-all" style=" padding: 2px; background-color: rgba(184, 12, 12, 1);">
                                 Remove
                             </a>

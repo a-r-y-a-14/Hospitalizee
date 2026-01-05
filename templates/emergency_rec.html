@@ -228,9 +228,36 @@
                 
             <div id="content">
                 <h3 class="headings" style="margin-bottom: 10px; color:#00080a; font-family: system-ui;" > Recommended Department: {{ dept }}</h3>
-                <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" > Nearest available hospitals</h3>
             </div>
             <form method="POST" action="/emergency/book-emergency?fname={{ fname }}&lname={{ lname }}&dob={{ dob }}&phone={{ phone }}&email={{ email }}&address={{ address }}&pincode={{ pincode }}&reason={{ reason }}">
+            <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" > Nearest available hospitals with doctor for {{ dept }}</h3>
+            <div id="table">
+                <table class="table">
+                    <tr style="font-family: system-ui;">
+                        <th scope="col">Hospital Name</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Emergency bed availabe</th>
+                        <th scope="col">Select</th>
+                    </tr>
+                    {% if dept_hospitals %}
+                        {% for hosp in dept_hospitals %}
+                        <tr>
+                            <td>{{ hosp.name }}</td>
+                            <td>{{ hosp.address }}, {{ hosp.pincode }}</td>
+                            <td style="text-align: center;">{{ hosp.cur_emergency_availability }}</td>
+                            <td style="text-align: center;">
+                                    <input type="radio" name="hospital_id" value="{{ hosp.id }}" required>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align: center;">No hospitals found</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>    
+            <h3 class="headings" style="margin-bottom: 10px; color:#346578; font-family: system-ui;" > Nearest available hospitals</h3>
             <div id="table">
                 <table class="table">
                     <tr style="font-family: system-ui;">

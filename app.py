@@ -403,6 +403,8 @@ def hospital_dashboard():
     total_beds = user.emergency_capacity
     available_beds = user.cur_emergency_availability
     occupied_beds = total_beds - available_beds
+    emr_list = user.cur_emergency_doctors
+    emr_docs = db.session.query(Doctor.id.label('id'), Doctor.name.label('name'), Departments.name.label('dept')).join(Departments, Doctor.department_id == Departments.id).filter(Doctor.id.in_(emr_list)).all()
 
     return render_template(
         'hospital_dashboard.html',
@@ -411,7 +413,8 @@ def hospital_dashboard():
         doctors=doctors,
         total_beds=total_beds,
         available_beds=available_beds,
-        occupied_beds=occupied_beds
+        occupied_beds=occupied_beds,
+        emr_docs=emr_docs
     )
 
 @app.route('/hospital/dashboard/emergency-doctors')
@@ -425,12 +428,23 @@ def emergency_doctors():
 
 @app.route('/hospital/dashboard/emergency/add-doctor')
 def add_doctor():
-    user_id = request.args.get('user_id')
+    user_id = request.args.get('user_id', type=int)
     user = Hospital.query.filter_by(id=user_id).first()
-    doc_id = request.args.get('doc_id')
+    doc_id = request.args.get('doc_id', type=int)
     user.cur_emergency_doctors.append(doc_id)
+    flag_modified(user, "cur_emergency_doctors")
     db.session.commit()
     return render_template('alert.html', message = 'Doctor added successfully', redirect_url = f"/hospital/dashboard/emergency-doctors?user_id={user_id}")
+
+@app.route('/hospital/dashboard/emergency/remove-doctor')
+def remove_doctor():
+    user_id = request.args.get('user_id', type=int)
+    user = Hospital.query.filter_by(id=user_id).first()
+    doc_id = request.args.get('doc_id', type=int)
+    user.cur_emergency_doctors.remove(doc_id)
+    flag_modified(user, "cur_emergency_doctors")
+    db.session.commit()
+    return render_template('alert.html', message = 'Doctor removed successfully', redirect_url = f"/hospital/dashboard/emergency-doctors?user_id={user_id}")
 
 @app.route('/hospital/logout')
 def hospital_logout():
@@ -628,7 +642,8 @@ def emergency_hosp():
         else:
             hospitals = Hospital.query.filter_by(pincode=pincode).limit(3).all()
     else:
-        dept_id = Departments.query.filter_by(name=dept).first()
+        req_dept = Departments.query.filter_by(name=dept).first()
+        dept_id = req_dept.id
         hosp = Hospital.query.all()
         all_hosp = []
         for h in hosp:
@@ -642,14 +657,14 @@ def emergency_hosp():
         if lat and lon:
             all_hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp)).all()
             sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
-            hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0] + [h for h in sorted(Hospital.query.all(), key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon)) if h.cur_emergency_availability > 0]
-            hospitals = hospitals[:3]
+            dept_hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0][:3]
+            hospitals = [h for h in sorted(Hospital.query.all(), key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon)) if h.cur_emergency_availability > 0 and h not in dept_hospitals][:3]
         else:
-            hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp), Hospital.pincode==pincode).all() + Hospital.query.filter_by(pincode=pincode).limit(3).all()
-            hospitals = hospitals[:3]
+            dept_hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp), Hospital.pincode==pincode).all()
+            hospitals = [h for h in Hospital.query.filter_by(pincode=pincode).limit(3).all() if h not in dept_hospitals][:3]
 
 
-    return render_template('emergency_rec.html', fname=fname, lname=lname, dob=dob, phone=phone, email=email, address=address, pincode=pincode, reason=reason, hospitals=hospitals, dept=dept)
+    return render_template('emergency_rec.html', fname=fname, lname=lname, dob=dob, phone=phone, email=email, address=address, pincode=pincode, reason=reason, dept_hospitals=dept_hospitals, hospitals=hospitals, dept=dept)
 
 @app.route('/emergency/book-emergency', methods=['POST'])
 def book_emergency():
@@ -672,7 +687,7 @@ def book_emergency():
 
     return render_template(
         'alert.html',
-        message=f"Emergency booking successful at {hospital.name}. Please proceed to the hospital.",
+        message=f"Emergency booking successful at {hospital.name}. Please proceed to the hospital. For assistance call {hospital.telephone}",
         redirect_url="/"
     )
 

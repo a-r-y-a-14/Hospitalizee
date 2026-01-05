@@ -1,0 +1,1 @@
+/hospital/dashboard/emergency/remove-doctor

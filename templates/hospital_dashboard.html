@@ -163,11 +163,11 @@
                         <th scope="col">Department</th>
                     </tr>
 
-                    {% if doctors %}
-                        {% for doc in doctors %}
+                    {% if emr_docs %}
+                        {% for doc in emr_docs %}
                         <tr>
                             <td>{{ doc.name }}</td>
-                            <td>{{ doc.dept_name }}</td>
+                            <td>{{ doc.dept }}</td>
                         </tr>
                         {% endfor %}
                     {% else %}
