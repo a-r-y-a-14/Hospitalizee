@@ -127,15 +127,15 @@
                         <th scope="col">Experience</th>
                         <th scope="col">Available Slots</th>
                     </tr>
-                    <tr>
-                        {% for doc in docs %}
-                            <th scope="col">{{ doc.id }}</th>
-                            <th scope="col">{{ doc.fname }} {{ doc.lname }}</th>
-                            <th scope="col">{{ doc.qualification }}</th>
-                            <th scope="col">{{ doc.experience }}</th>
-                            <th scope="col">{{ doc.slots | join(', ') }}</th>
-                        {% endfor %}
-                    </tr>
+                    {% for doc in docs %}
+                        <tr>
+                            <td scope="col">{{ doc.id }}</td>
+                            <td scope="col">{{ doc.name }}</td>
+                            <td scope="col">{{ doc.qualification }}</td>
+                            <td scope="col">{{ doc.experience }}</td>
+                            <td scope="col">{{ doc.slots | join(', ') }}</td>
+                        </tr>
+                    {% endfor %}
                 </table>
             </div>
         </div>

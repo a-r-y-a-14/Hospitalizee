@@ -503,7 +503,7 @@ def update_total_beds():
 def view_departments():
     hosp_id = request.args.get('h_id')
     dept = request.args.get('dept')
-    dept_id = Departments.query.filter_by(id=dept).first()
+    dept_id = (Departments.query.filter(Departments.name==dept).first()).id
     docs = Doctor.query.filter(Doctor.department_id == dept_id, Doctor.hospital_id == hosp_id)
     hospital = Hospital.query.filter_by(id=hosp_id).first()
     return render_template('hospital_dashboard_view_departments.html', docs=docs, dept=dept, hospital=hospital)
