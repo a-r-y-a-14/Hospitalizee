@@ -9,6 +9,7 @@ import json
 from firebase_admin import credentials, auth
 import firebase_admin
 import os
+import re
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 cred_path = os.path.join(BASE_DIR, "firebase_key.json")
@@ -60,6 +61,7 @@ class Hospital(db.Model):
     emergency_capacity = db.Column(db.Integer, nullable=False)
     depts = db.Column(JSON, nullable=True)
     cur_emergency_availability = db.Column(db.Integer, nullable=False)
+    cur_emergency_doctors = db.Column(JSON, nullable = True)
 
 class Departments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,7 +70,7 @@ class Departments(db.Model):
 class Doctor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    department = db.Column(db.String(100), db.ForeignKey('departments.id'), nullable=False)
+    department_id = db.Column(db.Integer, db.ForeignKey('departments.id'), nullable=False)
     qualification = db.Column(db.String(200), nullable=False)
     experience = db.Column(db.Integer, nullable=False)
     hospital_id = db.Column(db.Integer, db.ForeignKey('hospital.id'), nullable=False)
@@ -98,8 +100,59 @@ class EmergencyBooking(db.Model):
     booking_time = db.Column(db.DateTime, default=datetime.now)
     reason = db.Column(db.String(300), nullable=False)
 
-with app.app_context():
-    db.create_all()
+def init_db(app):
+    with app.app_context():
+        db.create_all()
+        default_departments = ["Cardiology", "Orthopaedics", "Neurology", "Paediatrics", "General Medicine", "Emergency", "Pulmonology", "Gastroenterology", "ENT", "Opthalmology", "Dematology", "Psychiatry"]
+        for name in default_departments:
+            exists = Departments.query.filter_by(name=name).first()
+            if not exists:
+                db.session.add(Departments(name=name))
+        db.session.commit()
+
+
+DEPARTMENT_RULES = {
+    "Cardiology": [
+        "chest pain", "heart", "palpitation", "cardiac", "bp", "blood pressure"
+    ],
+    "Neurology": [
+        "headache", "seizure", "faint", "numb", "paralysis", "dizziness", "stroke"
+    ],
+    "Orthopedics": [
+        "fracture", "bone", "leg pain", "arm pain", "fall", "injury", "joint"
+    ],
+    "Pulmonology": [
+        "breath", "asthma", "cough", "lungs", "respiratory", "breathing"
+    ],
+    "Gastroenterology": [
+        "stomach", "vomit", "abdominal", "diarrhea", "acid"
+    ],
+    "ENT": [
+        "ear", "nose", "throat", "sinus"
+    ],
+    "Ophthalmology": [
+        "eye", "vision", "blurred", "red eye"
+    ],
+    "Dermatology": [
+        "skin", "rash", "itching", "allergy"
+    ],
+    "Psychiatry": [
+        "anxiety", "panic", "depression", "stress", "hallucination"
+    ]
+}
+def classify_emergency(text):
+    text = text.lower()
+    scores = {}
+    for dept, keywords in DEPARTMENT_RULES.items():
+        score = sum(1 for kw in keywords if re.search(rf"\b{kw}\b", text))
+        if score > 0:
+            scores[dept] = score
+    if not scores:
+        return "General Medicine", 0.55
+    best_dept = max(scores, key=scores.get)
+    confidence = min(0.95, 0.6 + scores[best_dept] * 0.1)
+    return best_dept, round(confidence, 2)
+
 
 #routes
 @app.route('/')
@@ -317,7 +370,7 @@ def hospital_dashboard():
             Doctor.name,
             Departments.name.label("dept_name")
         )
-        .join(Departments, Doctor.department == Departments.id)
+        .join(Departments, Doctor.department_id == Departments.id)
         .filter(Doctor.hospital_id == user.id)
         .all()
     )
@@ -359,7 +412,7 @@ def hospital_new_doctor():
         slots = json.loads(request.form['slots'])
         hospital_id = session['hospital_id']
 
-        new_doctor = Doctor(name=name, department=department, qualification=qualification, experience=experience, hospital_id=hospital_id, slots=slots)
+        new_doctor = Doctor(name=name, department_id=department, qualification=qualification, experience=experience, hospital_id=hospital_id, slots=slots)
         db.session.add(new_doctor)
         db.session.commit()
 
@@ -369,7 +422,9 @@ def hospital_new_doctor():
             message="Doctor added successfully!",
             redirect_url="/hospital/dashboard?"
         )
-    depts = Departments.query.all()
+    hos = Hospital.query.filter(Hospital.id==session['hospital_id']).first()
+    hos_depts = hos.depts
+    depts = Departments.query.filter(Departments.id.in_(hos_depts))
     return render_template('hospital_new_doctor.html', depts=depts)
 
 @app.route('/hospital/new-department', methods=['GET', 'POST'])
@@ -439,7 +494,7 @@ def hospital_register():
                 redirect_url="/hospital/login"
             )
 
-        new_user = Hospital(gid=gid, email=email, password=password, name=name, telephone=tel, pincode=pincode, address=address, lat=lat, lon=lon, emergency_capacity=emergency_capacity, cur_emergency_availability=emergency_capacity)
+        new_user = Hospital(gid=gid, email=email, password=password, name=name, telephone=tel, pincode=pincode, address=address, lat=lat, lon=lon, emergency_capacity=emergency_capacity, cur_emergency_availability=emergency_capacity, cur_emergency_doctors = [], depts=[])
         db.session.add(new_user)
         db.session.commit()
 
@@ -481,14 +536,38 @@ def emergency_hosp():
     lat = request.form.get('lat')
     lon = request.form.get('long')
 
-    if lat and lon:
-        all_hospitals = Hospital.query.all()
-        sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
-        hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0][:3]
-    else:
-        hospitals = Hospital.query.filter_by(pincode=pincode).limit(3).all()
+    dept, conf = classify_emergency(reason)
 
-    return render_template('emergency_rec.html', fname=fname, lname=lname, dob=dob, phone=phone, email=email, address=address, pincode=pincode, reason=reason, hospitals=hospitals)
+    if conf <= 0.55:
+        if lat and lon:
+            all_hospitals = Hospital.query.all()
+            sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
+            hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0][:3]
+        else:
+            hospitals = Hospital.query.filter_by(pincode=pincode).limit(3).all()
+    else:
+        dept_id = Departments.query.filter_by(name=dept).first()
+        hosp = Hospital.query.all()
+        all_hosp = []
+        for h in hosp:
+            cur_depts = []
+            cur_docs = h.cur_emergency_doctors
+            for doc in cur_docs:
+                doct = Doctor.query.filter_by(id=doc).first()
+                cur_depts.append(doct.department_id)
+            if dept_id in cur_depts:
+                all_hosp.append(h.id)
+        if lat and lon:
+            all_hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp)).all()
+            sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
+            hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0] + [h for h in sorted(Hospital.query.all(), key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon)) if h.cur_emergency_availability > 0]
+            hospitals = hospitals[:3]
+        else:
+            hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp), Hospital.pincode==pincode).all() + Hospital.query.filter_by(pincode=pincode).limit(3).all()
+            hospitals = hospitals[:3]
+
+
+    return render_template('emergency_rec.html', fname=fname, lname=lname, dob=dob, phone=phone, email=email, address=address, pincode=pincode, reason=reason, hospitals=hospitals, dept=dept)
 
 @app.route('/emergency/book-emergency', methods=['POST'])
 def book_emergency():
@@ -547,4 +626,5 @@ def update_total_beds():
         
 
 if __name__ == '__main__':
+    init_db(app)
     app.run(debug=True)
