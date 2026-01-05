@@ -465,6 +465,36 @@ def hospital_new_department():
         )
     return render_template('hospital_new_department.html')
 
+@app.route('/hospital/update-beds/occupied',methods=['GET','POST'])
+def update_occupied_beds():
+    if 'user_id' not in session:
+        return redirect('/hospital/login')
+    hospital=Hospital.query.get(session['user_id'])
+    if request.method=='POST':
+        occupied=int(request.form.get('occupied'))
+        hospital.cur_emergency_availability=hospital.emergency_capacity-occupied
+        db.session.commit()
+        return redirect('/hospital/dashboard')
+    return render_template(
+        'emergency_occupied_beds.html', 
+        max_value=hospital.emergency_capacity
+    )
+    
+@app.route('/hospital/update-beds/total',methods=['GET','POST'])
+def update_total_beds():
+    if 'user_id' not in session:
+        return redirect('/hospital/login')
+    hospital=Hospital.query.get(session['user_id'])
+    if request.method=='POST':
+        total=int(request.form.get('total'))
+        hospital.emergency_capacity=total
+        db.session.commit()
+        return redirect('/hospital/dashboard')
+    return render_template(
+        'emergency_total_beds.html', 
+        max_value=200
+    )
+
 @app.route('/hospital/register', methods=['GET', 'POST'])
 def hospital_register():
     user_email = session.get('user_email')
@@ -594,35 +624,7 @@ def book_emergency():
         redirect_url="/"
     )
 
-@app.route('/hospital/update-beds/occupied',methods=['GET','POST'])
-def update_occupied_beds():
-    if 'user_id' not in session:
-        return redirect('/hospital/login')
-    hospital=Hospital.query.get(session['user_id'])
-    if request.method=='POST':
-        occupied=int(request.form.get('occupied'))
-        hospital.cur_emergency_availability=hospital.emergency_capacity-occupied
-        db.session.commit()
-        return redirect('/hospital/dashboard')
-    return render_template(
-        'emergency_occupied_beds.html', 
-        max_value=hospital.emergency_capacity
-    )
-    
-@app.route('/hospital/update-beds/total',methods=['GET','POST'])
-def update_total_beds():
-    if 'user_id' not in session:
-        return redirect('/hospital/login')
-    hospital=Hospital.query.get(session['user_id'])
-    if request.method=='POST':
-        total=int(request.form.get('total'))
-        hospital.emergency_capacity=total
-        db.session.commit()
-        return redirect('/hospital/dashboard')
-    return render_template(
-        'emergency_total_beds.html', 
-        max_value=200
-    )
+
         
 
 if __name__ == '__main__':
