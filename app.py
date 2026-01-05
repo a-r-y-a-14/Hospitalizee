@@ -122,7 +122,7 @@ DEPARTMENT_RULES = {
         "fracture", "bone", "leg pain", "arm pain", "fall", "injury", "joint"
     ],
     "Pulmonology": [
-        "breath", "asthma", "cough", "lungs", "respiratory"
+        "breath", "asthma", "cough", "lungs", "respiratory", "breathing"
     ],
     "Gastroenterology": [
         "stomach", "vomit", "abdominal", "diarrhea", "acid"
