@@ -370,7 +370,7 @@ def hospital_dashboard():
             Doctor.name,
             Departments.name.label("dept_name")
         )
-        .join(Departments, Doctor.department == Departments.id)
+        .join(Departments, Doctor.department_id == Departments.id)
         .filter(Doctor.hospital_id == user.id)
         .all()
     )
@@ -412,7 +412,7 @@ def hospital_new_doctor():
         slots = json.loads(request.form['slots'])
         hospital_id = session['hospital_id']
 
-        new_doctor = Doctor(name=name, department=department, qualification=qualification, experience=experience, hospital_id=hospital_id, slots=slots)
+        new_doctor = Doctor(name=name, department_id=department, qualification=qualification, experience=experience, hospital_id=hospital_id, slots=slots)
         db.session.add(new_doctor)
         db.session.commit()
 
@@ -422,7 +422,9 @@ def hospital_new_doctor():
             message="Doctor added successfully!",
             redirect_url="/hospital/dashboard?"
         )
-    depts = Departments.query.all()
+    hos = Hospital.query.filter(Hospital.id==session['hospital_id']).first()
+    hos_depts = hos.depts
+    depts = Departments.query.filter(Departments.id.in_(hos_depts))
     return render_template('hospital_new_doctor.html', depts=depts)
 
 @app.route('/hospital/new-department', methods=['GET', 'POST'])
@@ -492,7 +494,7 @@ def hospital_register():
                 redirect_url="/hospital/login"
             )
 
-        new_user = Hospital(gid=gid, email=email, password=password, name=name, telephone=tel, pincode=pincode, address=address, lat=lat, lon=lon, emergency_capacity=emergency_capacity, cur_emergency_availability=emergency_capacity, cur_emergency_doctors = [])
+        new_user = Hospital(gid=gid, email=email, password=password, name=name, telephone=tel, pincode=pincode, address=address, lat=lat, lon=lon, emergency_capacity=emergency_capacity, cur_emergency_availability=emergency_capacity, cur_emergency_doctors = [], depts=[])
         db.session.add(new_user)
         db.session.commit()
 
