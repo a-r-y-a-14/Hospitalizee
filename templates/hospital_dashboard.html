@@ -161,6 +161,7 @@
                     <tr style="font-family: system-ui;">
                         <th scope="col">Assigned Doctor</th>
                         <th scope="col">Department</th>
+                        <th scope="col">Update</th>
                     </tr>
 
                     {% if doctors %}
@@ -168,11 +169,20 @@
                         <tr>
                             <td>{{ doc.name }}</td>
                             <td>{{ doc.dept_name }}</td>
+                            <td>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>{{ occupied_beds }}</span>
+                                <a href="/hospital/update-beds/occupied" class="btn btn-all"
+                                style="background-color: rgba(17, 145, 191, 1);">
+                                    Update
+                                </a>
+                            </div>
+                        </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="2" style="text-align:center;">No doctors added yet</td>
+                            <td colspan="3" style="text-align:center;">No doctors added yet</td>
                         </tr>
                     {% endif %}
                 </table>
