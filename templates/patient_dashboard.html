@@ -118,6 +118,7 @@
             <div id="table" style="padding: 0px 25px">
                 <table class="table">
                     <tr style="font-family: system-ui;">
+                        <th scope="col">ID</th>
                         <th scope="col">Date</th>
                         <th scope="col">Time/Slot</th>
                         <th scope="col">Doctor</th>
@@ -127,12 +128,13 @@
                     {% if u_app %}
                         {% for app in u_app %}
                         <tr>
+                            <td>{{ app.id }}</td>
                             <td>{{ app.date }}</td>
                             <td>{{ app.slot }}</td>
                             <td>{{ app.doctor_name }}</td>
                             <td>{{ app.hospital_name }}</td>
                             <td style="text-align: center;">
-                                <a href="/patient/cancel-appointment/{{ app.id }}"
+                                <a href="/patient/cancel-appointment?app_id={{ app.id }}&user_id={{ user.id }}"
                                 class="btn btn-all" style=" background-color: rgb(191, 43, 17); font-size: 15px; padding: 3px 10px;">
                                     Cancel
                                 </a>

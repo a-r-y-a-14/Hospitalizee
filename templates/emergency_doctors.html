@@ -110,7 +110,7 @@
     <div class="login">
         <div class="login-card">
             <div style="margin-top:70px; margin-bottom:60px; color: Black; text-align:center; ">
-                <h1 style="font-size:55px; font-family: Times New Roman, serif;">Peerless Hospital</h1>
+                <h1 style="font-size:55px; font-family: Times New Roman, serif;">{{ user.name }}</h1>
             </div>
             <div style="text-align:center; ">
                 <h2>Department: Emergency</h2>
@@ -126,10 +126,11 @@
                         <th scope="col" style="width:35%;">Department</th>
                         <th scope="col" style="width:15%;">Edit</th>
                     </tr>
+                    {% for doc in emer_docs %}
                     <tr>
-                        <td>1</td>
-                        <td>1</td>
-                        <td>1</td>
+                        <td>{{ doc.id }}</td>
+                        <td>{{ doc.name }}</td>
+                        <td>{{ doc.dept }}</td>
                         <td style="text-align: center;">
                             <a href="#"
                             class="btn btn-all" style=" padding: 2px; background-color: rgba(184, 12, 12, 1);">
@@ -137,6 +138,7 @@
                             </a>
                         </td>
                     </tr>
+                    {% endfor %}
                 </table>
             </div>
             <div id="content" style="padding: 0px 25px; text-align: center">
@@ -150,17 +152,19 @@
                         <th scope="col" style="width:35%;">Department</th>
                         <th scope="col" style="width:15%;">Edit</th>
                     </tr>
+                    {% for doc in other_docs %}
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>{{ doc.id }}</td>
+                        <td>{{ doc.name }}</td>
+                        <td>{{ doc.dept }}</td>
                         <td style="text-align: center;">
                             <a href="#"
-                            class="btn btn-all" style=" padding: 2px; background-color: rgba(58, 190, 9, 1);">
+                            class="btn btn-all" style=" padding: 2px; background-color: rgb(39, 197, 84);">
                                 Add
                             </a>
                         </td>
                     </tr>
+                    {% endfor %}
                 </table>
             </div>
         </div>

@@ -204,15 +204,19 @@ def patient_verify_login():
 
 @app.route('/patient/dashboard')
 def patient_dashboard():
-    if 'user_id' not in session:
+    if 'user_id' not in session and not request.args.get('user_id'):
         return render_template(
             'alert.html', 
             message="You are not logged in.",
             redirect_url="/patient/login"
         )
-    user = Patient.query.get(session['user_id'])
-    u_app = db.session.query(Appointment.appointment_date.label('date'), Appointment.appointment_slot.label('slot'), Doctor.name.label('doctor_name'), Hospital.name.label('hospital_name')).join(Doctor, Appointment.doctor_id == Doctor.id).join(Hospital, Appointment.hospital_id == Hospital.id).filter(Appointment.patient_id == user.id, Appointment.appointment_date >= today).all()
-    p_app = db.session.query(Appointment.appointment_date.label('date'), Appointment.appointment_slot.label('slot'), Doctor.name.label('doctor_name'), Hospital.name.label('hospital_name')).join(Doctor, Appointment.doctor_id == Doctor.id).join(Hospital, Appointment.hospital_id == Hospital.id).filter(Appointment.patient_id == user.id, Appointment.appointment_date < today).all()
+    if 'user_id' in session:
+        user_id = session['user_id']
+    else:
+        user_id = request.args.get('user_id')
+    user = Patient.query.get(user_id)
+    u_app = db.session.query(Appointment.id.label('id'), Appointment.appointment_date.label('date'), Appointment.appointment_slot.label('slot'), Doctor.name.label('doctor_name'), Hospital.name.label('hospital_name')).join(Doctor, Appointment.doctor_id == Doctor.id).join(Hospital, Appointment.hospital_id == Hospital.id).filter(Appointment.patient_id == user.id, Appointment.appointment_date >= today).all()
+    p_app = db.session.query(Appointment.id.label('id'), Appointment.appointment_date.label('date'), Appointment.appointment_slot.label('slot'), Doctor.name.label('doctor_name'), Hospital.name.label('hospital_name')).join(Doctor, Appointment.doctor_id == Doctor.id).join(Hospital, Appointment.hospital_id == Hospital.id).filter(Appointment.patient_id == user.id, Appointment.appointment_date < today).all()
     session['patient_id'] = user.id
     return render_template('patient_dashboard.html', user=user, u_app=u_app, p_app=p_app)
 
@@ -271,7 +275,7 @@ def patient_new_appointment():
 
 @app.route('/get-doctors/<int:dept_id>')
 def get_doctors(dept_id):
-    doctors = Doctor.query.filter_by(department=dept_id).all()
+    doctors = Doctor.query.filter_by(department_id=dept_id).all()
     hospitals = Hospital.query.all()
     return jsonify([
         {"id": f"{d.id},{h.id}", "name": d.name, "hname" : h.name}
@@ -303,6 +307,18 @@ def confirm_appointment():
         message="Appointment registered successfully!",
         redirect_url="/patient/dashboard"
     )
+
+@app.route('/patient/cancel-appointment')
+def cancel_appointment():
+    user_id = request.args.get('user_id')
+    app_id = request.args.get('app_id')
+    appt = Appointment.query.get(app_id)
+    if appt:
+        db.session.delete(appt)
+        db.session.commit()
+        return render_template('alert.html', message = "Your appointment is deleted successfully", redirect_url = f"/patient/dashboard?user_id={ user_id }")
+    return render_template('alert.html', message = f"Your appointment { app_id } does not exist", redirect_url = f"/patient/dashboard?user_id={ user_id }")
+
 
 @app.route('/hospital/login', methods=['GET', 'POST'])
 def hospital_login():
@@ -392,6 +408,15 @@ def hospital_dashboard():
         available_beds=available_beds,
         occupied_beds=occupied_beds
     )
+
+@app.route('/hospital/dashboard/emergency-doctors')
+def emergency_doctors():
+    user_id = request.args.get('user_id')
+    user = Hospital.query.filter_by(id=user_id).first()
+    emr_list = user.cur_emergency_doctors
+    emr_docs = Doctor.query(Doctor.id.label('id'), Doctor.name.label('name'), Departments.name.label('dept')).join(Departments, Doctor.department_id == Departments.id).filter(Doctor.id.in_(emr_list)).all()
+    other_docs = Doctor.query(Doctor.id.label('id'), Doctor.name.label('name'), Departments.name.label('dept')).join(Departments, Doctor.department_id == Departments.id).filter(Doctor.id.notin_(emr_list), Doctor.hospital_id == user_id).all()
+    return render_template('emergency_doctors', user=user, emr_docs=emr_docs, other_docs=other_docs)
 
 @app.route('/hospital/logout')
 def hospital_logout():
