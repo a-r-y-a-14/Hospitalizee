@@ -638,8 +638,10 @@ def emergency_hosp():
         if lat and lon:
             all_hospitals = Hospital.query.all()
             sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
+            dept_hospitals = []
             hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0][:3]
         else:
+            dept_hospitals = []
             hospitals = Hospital.query.filter_by(pincode=pincode).limit(3).all()
     else:
         req_dept = Departments.query.filter_by(name=dept).first()
