@@ -17,7 +17,7 @@ cred_path = os.path.join(BASE_DIR, "firebase_key.json")
 cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred)
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 app.secret_key = "dont_look_at_my_key" 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hospitalizee.db'
 db = SQLAlchemy(app)
