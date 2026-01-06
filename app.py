@@ -6,16 +6,16 @@ from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy import Date
 import math
 import json
-from firebase_admin import credentials, auth
-import firebase_admin
+from firebase_admin import credentials, auth, initialize_app
 import os
 import re
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 cred_path = os.path.join(BASE_DIR, "firebase_key.json")
 
-cred = credentials.Certificate(cred_path)
-firebase_admin.initialize_app(cred)
+firebase_json = json.loads(os.environ["FIREBASE_KEY"])
+cred = credentials.Certificate(firebase_json)
+initialize_app(cred)
 
 app = Flask(__name__, template_folder="templates")
 app.secret_key = "dont_look_at_my_key" 
