@@ -655,13 +655,23 @@ def emergency_hosp():
             if dept_id in cur_depts:
                 all_hosp.append(h.id)
         if lat and lon:
-            all_hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp)).all()
-            sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
-            dept_hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0][:3]
-            hospitals = [h for h in sorted(Hospital.query.all(), key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon)) if h.cur_emergency_availability > 0 and h not in dept_hospitals][:3]
+            if all_hosp == []:
+                all_hospitals = Hospital.query.all()
+                sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
+                hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0][:3]
+                dept_hospitals = []
+            else:
+                all_hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp)).all()
+                sorted_hospitals = sorted(all_hospitals, key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon))
+                dept_hospitals = [h for h in sorted_hospitals if h.cur_emergency_availability > 0][:3]
+                hospitals = [h for h in sorted(Hospital.query.all(), key=lambda h: haversine(float(lat), float(lon), h.lat, h.lon)) if h.cur_emergency_availability > 0 and h not in dept_hospitals][:3]
         else:
-            dept_hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp), Hospital.pincode==pincode).all()
-            hospitals = [h for h in Hospital.query.filter_by(pincode=pincode).limit(3).all() if h not in dept_hospitals][:3]
+            if all_hosp == []:
+                dept_hospitals = []
+                hospitals = Hospital.query.filter_by(pincode=pincode).limit(3).all()
+            else:
+                dept_hospitals = Hospital.query.filter(Hospital.id.in_(all_hosp), Hospital.pincode==pincode).all()
+                hospitals = [h for h in Hospital.query.filter_by(pincode=pincode).limit(3).all() if h not in dept_hospitals][:3]
 
 
     return render_template('emergency_rec.html', fname=fname, lname=lname, dob=dob, phone=phone, email=email, address=address, pincode=pincode, reason=reason, dept_hospitals=dept_hospitals, hospitals=hospitals, dept=dept)
